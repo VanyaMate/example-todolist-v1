@@ -1,17 +1,23 @@
 import { Module } from '@nestjs/common';
-import {DatabaseSequelizeModule} from "./modules/database/sequelize/database-sequelize.module";
 import {ConfigModule} from "@nestjs/config";
 import sequelizeConfig from "./configs/sequelize.config";
-import {UserModule} from "./modules/user/user.module";
+import { ModulesModule } from "./modules/modules.module";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
     imports: [
         ConfigModule.forRoot({
-            load: [sequelizeConfig],
+            envFilePath: `.${ process.env.NODE_ENV }.env`,
             isGlobal: true,
         }),
-        UserModule,
-        DatabaseSequelizeModule
+        JwtModule.register({
+            global: true,
+            secret: process.env.JWT_SECRET_KEY,
+            signOptions: {
+                expiresIn: '30d'
+            }
+        }),
+        ModulesModule,
     ],
 })
 export class AppModule {}

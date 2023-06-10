@@ -1,4 +1,5 @@
-import {Column, DataType, Model, Table} from "sequelize-typescript";
+import { Column, DataType, HasOne, Model, Table } from "sequelize-typescript";
+import { Token } from "../../token/entities/token.entity";
 
 export interface IUserCreationData {
     login: string;
@@ -18,5 +19,8 @@ export class User extends Model<User, IUserCreationData> {
 
     @Column({ type: DataType.STRING, allowNull: false })
     password: string;
+
+    @HasOne(() => Token)
+    token: Token;
 
 }
