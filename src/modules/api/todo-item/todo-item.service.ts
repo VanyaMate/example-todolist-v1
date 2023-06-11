@@ -45,8 +45,6 @@ export class TodoItemService {
             ...searchOptions,
         })
 
-        console.log(where);
-
         return {
             list: todoItems,
             count: count,

@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { TodoList } from "./entities/todo-list.entity";
 import { CreateTodoListDto } from "./dto/create-todo-list.dto";
-import { TodoItem } from "../todo-item/entities/todo-item.entity";
 import { TodoItemInclude, TodoListAttributes, TodoListInclude } from "../../../configs/entities.config";
 import { ERROR_RESPONSE_NO_FIND } from "../../../constants/response-errors.constant";
 import { UpdateTodoListDto } from "./dto/update-todo-list.dto";

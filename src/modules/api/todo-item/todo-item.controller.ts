@@ -26,7 +26,6 @@ export class TodoItemController {
     @UseGuards(AccessTokenGuard)
     getMy (@UserVerified() user: IUserVerifiedData,
            @SearchOptions() searchOptions: ISearchOptions<TodoItem>) {
-        console.log(searchOptions);
         return this.todoItemService.findMany({ user_id: user.id }, searchOptions);
     }
 
