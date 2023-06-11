@@ -15,6 +15,7 @@ import { TokenModule } from "../../token/token.module";
     imports: [
         UserModule,
         TokenModule,
+        JwtModule,
     ]
 })
 export class AuthModule {}

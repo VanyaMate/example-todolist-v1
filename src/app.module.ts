@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import {ConfigModule} from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import sequelizeConfig from "./configs/sequelize.config";
 import { ModulesModule } from "./modules/modules.module";
 import { JwtModule } from "@nestjs/jwt";
@@ -10,12 +10,15 @@ import { JwtModule } from "@nestjs/jwt";
             envFilePath: `.${ process.env.NODE_ENV }.env`,
             isGlobal: true,
         }),
-        JwtModule.register({
-            global: true,
-            secret: process.env.JWT_SECRET_KEY,
-            signOptions: {
-                expiresIn: '30d'
-            }
+        JwtModule.registerAsync({
+            useFactory: (configService: ConfigService) => ({
+                global: true,
+                secret: configService.get<string>("JWT_SECRET_KEY"),
+                signOptions: {
+                    expiresIn: '30d'
+                }
+            }),
+            inject: [ConfigService]
         }),
         ModulesModule,
     ],
