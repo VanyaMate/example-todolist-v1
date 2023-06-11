@@ -3,7 +3,9 @@ import { TodoItem } from "./entities/todo-item.entity";
 import { CreateTodoItemDto } from "./dto/create-todo-item.dto";
 import { ERROR_RESPONSE_NO_FIND } from "../../../constants/response-errors.constant";
 import { ERROR_TODOITEM_LIST_NOT_FOUND } from "../../../constants/todo-item.constant";
-import { TodoItemAttributes } from "../../../configs/entities.config";
+import { TodoItemAttributes, TodoItemInclude, TodoListAttributes } from "../../../configs/entities.config";
+import { UpdateTodoItemDto } from "./dto/update-todo-item.dto";
+import { TodoList } from "../todo-list/entities/todo-list.entity";
 
 @Injectable()
 export class TodoItemService {
@@ -49,17 +51,18 @@ export class TodoItemService {
         })
     }
 
-    async updateStatus (userId: number, todoItemId: number, status: boolean) {
+    async update (userId: number, todoItemId: number, params: UpdateTodoItemDto) {
         try {
             const todoItem: TodoItem = await this.todoItemRepository.findOne({
                 where: {
-                    user_id: userId,
-                    id: todoItemId
+                    id: todoItemId,
+                    user_id: userId
                 },
                 attributes: TodoItemAttributes,
-            })
+            });
+
             if (todoItem) {
-                return await todoItem.update({ status });
+                return await todoItem.update(params);
             }
 
             throw { message: ERROR_RESPONSE_NO_FIND };
