@@ -1,5 +1,6 @@
-import { Column, DataType, HasOne, Model, Table } from "sequelize-typescript";
+import { Column, DataType, HasMany, HasOne, Model, Table } from "sequelize-typescript";
 import { Token } from "../../token/entities/token.entity";
+import { TodoList } from "../../api/todo-list/entities/todo-list.entity";
 
 export interface IUserCreationData {
     login: string;
@@ -22,5 +23,8 @@ export class User extends Model<User, IUserCreationData> {
 
     @HasOne(() => Token)
     token: Token;
+
+    @HasMany(() => TodoList)
+    todo_lists: TodoList[]
 
 }

@@ -6,7 +6,8 @@ import { Token } from "../../token/entities/token.entity";
 import { JwtService } from "@nestjs/jwt";
 import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import * as bcrypt from 'bcrypt';
-import { ERROR_RESPONSE_NO_ACCESS } from "../../../configs/response-errors.config";
+import { ERROR_RESPONSE_NO_ACCESS } from "../../../constants/response-errors.constant";
+import { UserPrivate } from "../../user/user.interface";
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
                  private tokenService: TokenService,
                  private jwtService: JwtService) {}
 
-    async registration (createUserDto: CreateUserDto): Promise<{ user: User, jwtToken: string }> {
+    async registration (createUserDto: CreateUserDto): Promise<{ user: UserPrivate, jwtToken: string }> {
         try {
             const user: User = await this.userService.create(createUserDto);
             const token: string = await this.tokenService.create(user.id);
@@ -26,7 +27,7 @@ export class AuthService {
 
             });
             return {
-                user: user,
+                user: this.userService.toPrivate(user),
                 jwtToken,
             }
         }
@@ -35,7 +36,7 @@ export class AuthService {
         }
     }
 
-    async login (createUserDto: CreateUserDto): Promise<{ user: User, jwtToken: string }> {
+    async login (createUserDto: CreateUserDto): Promise<{ user: UserPrivate, jwtToken: string }> {
         try {
             const user: User = await this.userService.findByLogin(createUserDto.login);
             if (!user) {
@@ -53,7 +54,7 @@ export class AuthService {
             });
 
             return {
-                user: user,
+                user: this.userService.toPrivate(user),
                 jwtToken,
             }
         }

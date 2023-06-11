@@ -1,0 +1,1 @@
+export const ERROR_TODOITEM_LIST_NOT_FOUND = 'Список не найден';

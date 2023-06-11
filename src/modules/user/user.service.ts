@@ -1,9 +1,13 @@
 import {HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import {REPOSITORY_USER} from "../../configs/repositories-names.config";
 import {User} from "./entities/user.entity";
 import * as bcrypt from 'bcrypt';
+import { Token } from "../token/entities/token.entity";
+import { TodoList } from "../api/todo-list/entities/todo-list.entity";
+import { TodoItem } from "../api/todo-item/entities/todo-item.entity";
+import { UserPrivate } from "./user.interface";
+import { TodoListInclude, TokenInclude } from "../../configs/entities.config";
 
 @Injectable()
 export class UserService {
@@ -22,7 +26,13 @@ export class UserService {
 
     async findOne(id: number) {
         try {
-            return await this.userRepository.findOne({ where: { id } });
+            return await this.userRepository.findOne({
+                where: { id },
+                include: [
+                    TokenInclude,
+                    TodoListInclude,
+                ]
+            });
         }
         catch (e) {
             throw new HttpException({ message: e.message }, HttpStatus.BAD_REQUEST);
@@ -31,7 +41,13 @@ export class UserService {
 
     async findByLogin(login: string) {
         try {
-            return await this.userRepository.findOne({ where: { login }, include: ['token']});
+            return await this.userRepository.findOne({
+                where: { login },
+                include: [
+                    TokenInclude,
+                    TodoListInclude,
+                ]
+            });
         }
         catch (e) {
             throw new HttpException({ message: e.message }, HttpStatus.BAD_REQUEST);
@@ -55,6 +71,15 @@ export class UserService {
         catch (e) {
             throw new HttpException({ message: e.message }, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    toPrivate (user: User): UserPrivate {
+        const data: User = user.dataValues;
+
+        delete data.password;
+        delete data.token;
+
+        return data;
     }
 
 }

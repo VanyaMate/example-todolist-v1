@@ -3,6 +3,8 @@ import {User} from "../../user/entities/user.entity";
 import {ConfigService} from "@nestjs/config";
 import {Dialect} from "sequelize/types/sequelize";
 import { Token } from "../../token/entities/token.entity";
+import { TodoItem } from "../../api/todo-item/entities/todo-item.entity";
+import { TodoList } from "../../api/todo-list/entities/todo-list.entity";
 
 export const databaseProviders = [
     {
@@ -17,7 +19,7 @@ export const databaseProviders = [
                 database: config.get<string>('DB_SEQUELIZE_DATABASE'),
                 logging: false,
             });
-            sequelize.addModels([User, Token]);
+            sequelize.addModels([User, Token, TodoItem, TodoList]);
             await sequelize.sync();
             return sequelize;
         },

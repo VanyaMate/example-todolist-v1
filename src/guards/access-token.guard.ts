@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Request } from "express";
-import { COOKIE_ACCESS_TOKEN, COOKIE_ACCESS_USER_ID } from "../configs/cookies.config";
+import { COOKIE_ACCESS_TOKEN, COOKIE_ACCESS_USER_ID } from "../constants/cookies.constant";
 import { JwtService } from "@nestjs/jwt";
-import { ERROR_RESPONSE_NO_ACCESS } from "../configs/response-errors.config";
+import { ERROR_RESPONSE_NO_ACCESS } from "../constants/response-errors.constant";
 import { TokenService } from "../modules/token/token.service";
 import { ConfigService } from "@nestjs/config";
 import { config } from "rxjs";

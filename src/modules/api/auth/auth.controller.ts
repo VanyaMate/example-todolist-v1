@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Res, UseGuards, UsePipes, ValidationPipe }
 import { AuthService } from "./auth.service";
 import { CreateUserDto } from "../../user/dto/create-user.dto";
 import { ClassValidatorPipe } from "../../../pipes/class-validator.pipe";
-import { COOKIE_ACCESS_TOKEN } from "../../../configs/cookies.config";
+import { COOKIE_ACCESS_TOKEN } from "../../../constants/cookies.constant";
 import { Response } from 'express';
 import { getMsDays } from "../../../helpers/utils.helper";
 import { AccessTokenGuard } from "../../../guards/access-token.guard";

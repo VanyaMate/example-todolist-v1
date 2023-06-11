@@ -1,6 +1,6 @@
 import { CreateUserDto } from './create-user.dto';
 import { IsString, Length } from "class-validator";
-import { ERROR_IS_STRING, ERROR_LENGTH } from "../../../configs/class-validator.config";
+import { ERROR_IS_STRING, ERROR_LENGTH } from "../../../constants/class-validator.constant";
 
 export class UpdateUserDto implements Partial<CreateUserDto> {
 
