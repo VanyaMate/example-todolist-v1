@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, UseGuards, UsePipes } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, UsePipes } from "@nestjs/common";
 import { CreateTodoListDto } from "./dto/create-todo-list.dto";
 import { ClassValidatorPipe } from "../../../pipes/class-validator.pipe";
 import { AccessTokenGuard } from "../../../guards/access-token.guard";
@@ -6,6 +6,10 @@ import { IUserVerifiedData, UserVerified } from "../../../decorators/user-verifi
 import { TodoListService } from "./todo-list.service";
 import { UpdateTodoItemDto } from "../todo-item/dto/update-todo-item.dto";
 import { UpdateTodoListDto } from "./dto/update-todo-list.dto";
+import { SearchOptions } from "../../../decorators/search-options.decorator";
+import { ISearchOptions } from "../api.interface";
+import { TodoItem } from "../todo-item/entities/todo-item.entity";
+import { TodoList } from "./entities/todo-list.entity";
 
 @Controller('/api/todolist')
 export class TodoListController {
@@ -22,15 +26,16 @@ export class TodoListController {
 
     @Get('/my')
     @UseGuards(AccessTokenGuard)
-    getMy (@UserVerified() user: IUserVerifiedData) {
-        return this.todoListService.findMany(user.id);
+    getMy (@UserVerified() user: IUserVerifiedData,
+           @SearchOptions() searchOptions: ISearchOptions<TodoList>) {
+        return this.todoListService.findMany({ user_id: user.id }, searchOptions);
     }
 
     @Get('/:id')
     @UseGuards(AccessTokenGuard)
     getById (@UserVerified() user: IUserVerifiedData,
              @Param('id') id: string) {
-        return this.todoListService.findOne(user.id, Number(id));
+        return this.todoListService.findOne({ user_id: user.id, id: Number(id) });
     }
 
 
@@ -40,7 +45,14 @@ export class TodoListController {
     update (@UserVerified() user: IUserVerifiedData,
             @Param('id') id: string,
             @Body() updateTodoListDto: UpdateTodoListDto) {
-        return this.todoListService.update(user.id, Number(id), updateTodoListDto);
+        return this.todoListService.update({ user_id: user.id, id: Number(id) }, updateTodoListDto);
+    }
+
+    @Delete('/delete/:id')
+    @UseGuards(AccessTokenGuard)
+    delete (@UserVerified() user: IUserVerifiedData,
+            @Param('id') id: string) {
+        return this.todoListService.delete({ user_id: user.id, id: Number(id) });
     }
 
 }

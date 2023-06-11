@@ -6,6 +6,8 @@ import { ERROR_TODOITEM_LIST_NOT_FOUND } from "../../../constants/todo-item.cons
 import { TodoItemAttributes, TodoItemInclude, TodoListAttributes } from "../../../configs/entities.config";
 import { UpdateTodoItemDto } from "./dto/update-todo-item.dto";
 import { TodoList } from "../todo-list/entities/todo-list.entity";
+import { IMultiplyResponse, ISearchOptions } from "../api.interface";
+import { WhereOptions } from "sequelize";
 
 @Injectable()
 export class TodoItemService {
@@ -24,40 +26,38 @@ export class TodoItemService {
         }
     }
 
-    async delete (todoItemId: number) {
-        return await this.todoItemRepository.destroy({
-            where: {
-                id: todoItemId
-            },
-        })
+    async delete (where: WhereOptions<TodoItem>) {
+        return await this.todoItemRepository.destroy({ where })
     }
 
-    async findOne (userId: number, todoItemId: number) {
+    async findOne (where: WhereOptions<TodoItem>) {
         return await this.todoItemRepository.findOne({
-            where: {
-                user_id: userId,
-                id: todoItemId
-            },
+            where,
             attributes: TodoItemAttributes,
         })
     }
 
-    async findMany (userId: number) {
-        return await this.todoItemRepository.findAll({
-            where: {
-                user_id: userId
-            },
+    async findMany (where: WhereOptions<TodoItem>, searchOptions: ISearchOptions<TodoItem> = {}): Promise<IMultiplyResponse<TodoItem>> {
+        const count: number = await this.todoItemRepository.count({ where });
+        const todoItems: TodoItem[] = await this.todoItemRepository.findAll({
+            where,
             attributes: TodoItemAttributes,
+            ...searchOptions,
         })
+
+        console.log(where);
+
+        return {
+            list: todoItems,
+            count: count,
+            options: searchOptions,
+        }
     }
 
-    async update (userId: number, todoItemId: number, params: UpdateTodoItemDto) {
+    async update (where: WhereOptions<TodoItem>, params: UpdateTodoItemDto) {
         try {
             const todoItem: TodoItem = await this.todoItemRepository.findOne({
-                where: {
-                    id: todoItemId,
-                    user_id: userId
-                },
+                where,
                 attributes: TodoItemAttributes,
             });
 

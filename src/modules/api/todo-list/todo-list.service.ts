@@ -5,6 +5,8 @@ import { TodoItem } from "../todo-item/entities/todo-item.entity";
 import { TodoItemInclude, TodoListAttributes, TodoListInclude } from "../../../configs/entities.config";
 import { ERROR_RESPONSE_NO_FIND } from "../../../constants/response-errors.constant";
 import { UpdateTodoListDto } from "./dto/update-todo-list.dto";
+import { IMultiplyResponse, ISearchOptions } from "../api.interface";
+import { WhereOptions } from "sequelize";
 
 @Injectable()
 export class TodoListService {
@@ -18,20 +20,13 @@ export class TodoListService {
         })
     }
 
-    async delete (todoListId: number) {
-        return await this.todoListRepository.destroy({
-            where: {
-                id: todoListId
-            }
-        })
+    async delete (where: WhereOptions<TodoList>) {
+        return await this.todoListRepository.destroy({ where })
     }
 
-    async findOne (userId: number, todoListId: number) {
+    async findOne (where: WhereOptions<TodoList>) {
         return await this.todoListRepository.findOne({
-            where: {
-                user_id: userId,
-                id: todoListId
-            },
+            where,
             attributes: TodoListAttributes,
             include: [
                 TodoItemInclude
@@ -39,25 +34,28 @@ export class TodoListService {
         })
     }
 
-    async findMany (userId: number) {
-        return await this.todoListRepository.findAll({
-            where: {
-                user_id: userId
-            },
+    async findMany (where: WhereOptions<TodoList>, searchOptions: ISearchOptions<TodoList> = {}): Promise<IMultiplyResponse<TodoList>> {
+        const count: number = await this.todoListRepository.count({ where });
+        const todoLists: TodoList[] = await this.todoListRepository.findAll({
+            where,
             attributes: TodoListAttributes,
             include: [
-                TodoItemInclude
-            ]
+                TodoItemInclude,
+            ],
+            ...searchOptions,
         })
+
+        return {
+            list: todoLists,
+            count: count,
+            options: searchOptions,
+        }
     }
 
-    async update (userId: number, todoListId: number, params: UpdateTodoListDto) {
+    async update (where: WhereOptions<TodoList>, params: UpdateTodoListDto) {
         try {
             const todoList: TodoList = await this.todoListRepository.findOne({
-                where: {
-                    id: todoListId,
-                    user_id: userId
-                },
+                where,
                 attributes: TodoListAttributes,
                 include: [
                     TodoItemInclude

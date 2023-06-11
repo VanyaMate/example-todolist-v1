@@ -12,11 +12,13 @@ export const TodoItemAttributes = ['id', 'title', 'description', 'status', 'crea
 export const TodoItemInclude = {
     model: TodoItem,
     attributes: TodoItemAttributes,
+    limit: 10,
 }
 
 export const TodoListAttributes = ['id', 'title', 'description', 'createdAt', 'updatedAt'];
 export const TodoListInclude = {
     model: TodoList,
     attributes: TodoListAttributes,
+    limit: 10,
     include: [TodoItemInclude]
 }
