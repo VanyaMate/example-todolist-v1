@@ -8,13 +8,15 @@ import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/
 import * as bcrypt from 'bcrypt';
 import { ERROR_RESPONSE_NO_ACCESS } from "../../../constants/response-errors.constant";
 import { UserPrivate } from "../../user/user.interface";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
 
     constructor (private userService: UserService,
                  private tokenService: TokenService,
-                 private jwtService: JwtService) {}
+                 private jwtService: JwtService,
+                 private configService: ConfigService) {}
 
     async registration (createUserDto: CreateUserDto): Promise<{ user: UserPrivate, jwtToken: string }> {
         try {
@@ -23,8 +25,6 @@ export class AuthService {
             const jwtToken: string = this.jwtService.sign({
                 id: user.id,
                 sessionToken: token,
-            }, {
-
             });
             return {
                 user: this.userService.toPrivate(user),

@@ -10,16 +10,6 @@ import { JwtModule } from "@nestjs/jwt";
             envFilePath: `.${ process.env.NODE_ENV }.env`,
             isGlobal: true,
         }),
-        JwtModule.registerAsync({
-            useFactory: (configService: ConfigService) => ({
-                global: true,
-                secret: configService.get<string>("JWT_SECRET_KEY"),
-                signOptions: {
-                    expiresIn: '30d'
-                }
-            }),
-            inject: [ConfigService]
-        }),
         ModulesModule,
     ],
 })
