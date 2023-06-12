@@ -32,7 +32,7 @@ export class AuthService {
             }
         }
         catch (e) {
-            throw new BadRequestException(e).getResponse();
+            throw new BadRequestException(e);
         }
     }
 
@@ -59,7 +59,7 @@ export class AuthService {
             }
         }
         catch (e) {
-            throw new UnauthorizedException(e).getResponse();
+            throw new UnauthorizedException(e);
         }
     }
 
