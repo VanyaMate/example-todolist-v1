@@ -8,7 +8,7 @@ export const TokenInclude = {
         attributes: TokenAttributes
 };
 
-export const TodoItemAttributes = ['id', 'title', 'description', 'status', 'createdAt', 'updatedAt'];
+export const TodoItemAttributes = ['id', 'title', 'description', 'status', 'createdAt', 'updatedAt', 'completion_date'];
 export const TodoItemInclude = {
     model: TodoItem,
     attributes: TodoItemAttributes,

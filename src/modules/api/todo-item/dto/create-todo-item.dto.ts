@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, Length } from "class-validator";
+import { IsDate, IsDateString, IsNotEmpty, IsNumber, IsString, Length, ValidateIf } from "class-validator";
 import {
     ERROR_IS_NOT_EMPTY,
     ERROR_IS_NUMBER,
@@ -18,6 +18,11 @@ export class CreateTodoItemDto {
     @Length(0, 100, { message: ERROR_LENGTH })
     @IsString({ message: ERROR_IS_STRING })
     readonly description: string;
+
+    @ApiProperty({ type: String, example: '2023-06-10T22:02:14.462Z', description: 'Дата окончания задачи' })
+    @IsDateString()
+    @ValidateIf((object, value) =>  value !== undefined && value !== null)
+    readonly completion_date: string;
 
     @ApiProperty({ type: Number, example: 10, description: 'Id списка задач в которую добавить эту задачу' })
     @IsNumber({}, { message: ERROR_IS_NUMBER })

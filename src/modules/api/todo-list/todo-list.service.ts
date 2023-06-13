@@ -20,34 +20,53 @@ export class TodoListService {
     }
 
     async delete (where: WhereOptions<TodoList>) {
-        return await this.todoListRepository.destroy({ where })
+        try {
+            return await this.todoListRepository.destroy({ where })
+        }
+        catch (e) {
+            throw new HttpException(e, HttpStatus.NOT_FOUND);
+        }
     }
 
     async findOne (where: WhereOptions<TodoList>) {
-        return await this.todoListRepository.findOne({
-            where,
-            attributes: TodoListAttributes,
-            include: [
-                TodoItemInclude
-            ]
-        })
+        try {
+            return await this.todoListRepository.findOne({
+                where,
+                attributes: TodoListAttributes,
+                include: [
+                    TodoItemInclude
+                ]
+            })
+        }
+        catch (e) {
+            throw new HttpException(e, HttpStatus.NOT_FOUND);
+        }
     }
 
     async findMany (where: WhereOptions<TodoList>, searchOptions: ISearchOptions<TodoList> = {}): Promise<IMultiplyResponse<TodoList>> {
-        const count: number = await this.todoListRepository.count({ where });
-        const todoLists: TodoList[] = await this.todoListRepository.findAll({
-            where,
-            attributes: TodoListAttributes,
-            include: [
-                TodoItemInclude,
-            ],
-            ...searchOptions,
-        })
+        try {
+            const count: number = await this.todoListRepository.count({ where });
+            const todoLists: TodoList[] = await this.todoListRepository.findAll({
+                where,
+                attributes: TodoListAttributes,
+                include: [
+                    TodoItemInclude,
+                ],
+                ...searchOptions,
+            })
 
-        return {
-            list: todoLists,
-            count: count,
-            options: searchOptions,
+            return {
+                list: todoLists,
+                count: count,
+                options: searchOptions,
+            }
+        }
+        catch (_) {
+            return {
+                list: [],
+                count: 0,
+                options: searchOptions,
+            }
         }
     }
 

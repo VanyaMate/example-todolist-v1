@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { TodoItem } from "./entities/todo-item.entity";
 import { CreateTodoItemDto } from "./dto/create-todo-item.dto";
 import { ERROR_RESPONSE_NO_FIND } from "../../../constants/response-errors.constant";
-import { ERROR_TODOITEM_LIST_NOT_FOUND } from "../../../constants/todo-item.constant";
+import { ERROR_NOT_FOUND } from "../../../constants/todo-item.constant";
 import { TodoItemAttributes, TodoItemInclude, TodoListAttributes } from "../../../configs/entities.config";
 import { UpdateTodoItemDto } from "./dto/update-todo-item.dto";
 import { TodoList } from "../todo-list/entities/todo-list.entity";
@@ -22,33 +22,52 @@ export class TodoItemService {
             })
         }
         catch (e) {
-            throw new HttpException({ message: ERROR_TODOITEM_LIST_NOT_FOUND }, HttpStatus.NOT_FOUND);
+            throw new HttpException({ message: ERROR_NOT_FOUND }, HttpStatus.NOT_FOUND);
         }
     }
 
     async delete (where: WhereOptions<TodoItem>) {
-        return await this.todoItemRepository.destroy({ where })
+        try {
+            return await this.todoItemRepository.destroy({ where })
+        }
+        catch (e) {
+            throw new HttpException({ message: ERROR_NOT_FOUND }, HttpStatus.NOT_FOUND);
+        }
     }
 
     async findOne (where: WhereOptions<TodoItem>) {
-        return await this.todoItemRepository.findOne({
-            where,
-            attributes: TodoItemAttributes,
-        })
+        try {
+            return await this.todoItemRepository.findOne({
+                where,
+                attributes: TodoItemAttributes,
+            })
+        }
+        catch (e) {
+            throw new HttpException({ message: ERROR_NOT_FOUND }, HttpStatus.NOT_FOUND);
+        }
     }
 
     async findMany (where: WhereOptions<TodoItem>, searchOptions: ISearchOptions<TodoItem> = {}): Promise<IMultiplyResponse<TodoItem>> {
-        const count: number = await this.todoItemRepository.count({ where });
-        const todoItems: TodoItem[] = await this.todoItemRepository.findAll({
-            where,
-            attributes: TodoItemAttributes,
-            ...searchOptions,
-        })
+        try {
+            const count: number = await this.todoItemRepository.count({ where });
+            const todoItems: TodoItem[] = await this.todoItemRepository.findAll({
+                where,
+                attributes: TodoItemAttributes,
+                ...searchOptions,
+            })
 
-        return {
-            list: todoItems,
-            count: count,
-            options: searchOptions,
+            return {
+                list: todoItems,
+                count: count,
+                options: searchOptions,
+            }
+        }
+        catch (_) {
+            return {
+                list: [],
+                count: 0,
+                options: searchOptions,
+            }
         }
     }
 

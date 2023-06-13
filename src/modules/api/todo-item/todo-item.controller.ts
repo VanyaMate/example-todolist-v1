@@ -13,9 +13,9 @@ import {
     ResponseUnauthorizedSwagger,
     SWAGGER_JWT_EXAMPLE,
     TodoItemSwagger,
-    UserSwagger
 } from "../../../configs/swagger.config";
 import { COOKIE_ACCESS_TOKEN } from "../../../constants/cookies.constant";
+import { Op, WhereOptions } from "sequelize";
 
 @ApiTags('Задачи')
 @Controller('/api/todoitem')
@@ -42,8 +42,11 @@ export class TodoItemController {
     @Get('/my')
     @UseGuards(AccessTokenGuard)
     getMy (@UserVerified() user: IUserVerifiedData,
-           @SearchOptions() searchOptions: ISearchOptions<TodoItem>) {
-        return this.todoItemService.findMany({ user_id: user.id }, searchOptions);
+           @SearchOptions() searchOptions: ISearchOptions<TodoItem>,
+           @Query('date') date: string) {
+        const filters: WhereOptions<TodoItem> = { user_id: user.id };
+        if (date === 'not-null') { filters.completion_date = { [Op.not]: null } }
+        return this.todoItemService.findMany(filters, searchOptions);
     }
 
     @ApiOperation({ summary: 'Получить задачу авторизованного пользователя по id' })
@@ -65,8 +68,11 @@ export class TodoItemController {
     @UseGuards(AccessTokenGuard)
     getByListId (@UserVerified() user: IUserVerifiedData,
                  @Param('id') id: string,
-                 @SearchOptions() searchOptions: ISearchOptions<TodoItem>) {
-        return this.todoItemService.findMany({ user_id: user.id, todo_list_id: Number(id) }, searchOptions);
+                 @SearchOptions() searchOptions: ISearchOptions<TodoItem>,
+                 @Query('date') date: string) {
+        const filters: WhereOptions<TodoItem> = { user_id: user.id };
+        if (date === 'not-null') { filters.completion_date = { [Op.not]: null } }
+        return this.todoItemService.findMany(filters, searchOptions);
     }
 
     @ApiOperation({ summary: 'Обновить данные в задаче по id' })

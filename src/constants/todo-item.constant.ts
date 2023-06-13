@@ -1,1 +1,1 @@
-export const ERROR_TODOITEM_LIST_NOT_FOUND = 'Список не найден';
+export const ERROR_NOT_FOUND = 'Объект не найден';

@@ -23,6 +23,9 @@ export class TodoItem extends Model<TodoItem, TodoItemCreate> {
     @Column({ type: DataType.TEXT, allowNull: false })
     description: string;
 
+    @Column({ type: DataType.DATE, allowNull: true })
+    completion_date: Date;
+
     @Column({ type: DataType.BOOLEAN, defaultValue: false })
     status: boolean;
 
