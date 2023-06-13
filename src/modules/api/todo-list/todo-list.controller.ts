@@ -4,18 +4,24 @@ import { ClassValidatorPipe } from "../../../pipes/class-validator.pipe";
 import { AccessTokenGuard } from "../../../guards/access-token.guard";
 import { IUserVerifiedData, UserVerified } from "../../../decorators/user-verified.decorator";
 import { TodoListService } from "./todo-list.service";
-import { UpdateTodoItemDto } from "../todo-item/dto/update-todo-item.dto";
 import { UpdateTodoListDto } from "./dto/update-todo-list.dto";
 import { SearchOptions } from "../../../decorators/search-options.decorator";
 import { ISearchOptions } from "../api.interface";
-import { TodoItem } from "../todo-item/entities/todo-item.entity";
 import { TodoList } from "./entities/todo-list.entity";
+import { ApiHeader, ApiHeaders, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ResponseUnauthorizedSwagger, SWAGGER_JWT_EXAMPLE, TodoListSwagger } from "../../../configs/swagger.config";
+import { COOKIE_ACCESS_TOKEN } from "../../../constants/cookies.constant";
 
+@ApiTags('Списки задач')
 @Controller('/api/todolist')
 export class TodoListController {
 
     constructor(private todoListService: TodoListService) {}
 
+    @ApiOperation({ summary: 'Создать список задач' })
+    @ApiResponse({ status: 200, type: TodoListSwagger })
+    @ApiResponse({ status: 401, type: ResponseUnauthorizedSwagger })
+    @ApiHeader({ name: COOKIE_ACCESS_TOKEN, description: 'Cookie.httpOnly jwt token', example: SWAGGER_JWT_EXAMPLE })
     @Post('/create')
     @UsePipes(ClassValidatorPipe)
     @UseGuards(AccessTokenGuard)
@@ -24,6 +30,10 @@ export class TodoListController {
         return this.todoListService.create(user.id, createTodoListDto);
     }
 
+    @ApiOperation({ summary: 'Получить списки задач авторизованного пользователя' })
+    @ApiResponse({ status: 200, type: [TodoListSwagger] })
+    @ApiResponse({ status: 401, type: ResponseUnauthorizedSwagger })
+    @ApiHeader({ name: COOKIE_ACCESS_TOKEN, description: 'Cookie.httpOnly jwt token', example: SWAGGER_JWT_EXAMPLE })
     @Get('/my')
     @UseGuards(AccessTokenGuard)
     getMy (@UserVerified() user: IUserVerifiedData,
@@ -31,6 +41,10 @@ export class TodoListController {
         return this.todoListService.findMany({ user_id: user.id }, searchOptions);
     }
 
+    @ApiOperation({ summary: 'Получить список задач авторизованного пользователя по id' })
+    @ApiResponse({ status: 200, type: TodoListSwagger })
+    @ApiResponse({ status: 401, type: ResponseUnauthorizedSwagger })
+    @ApiHeader({ name: COOKIE_ACCESS_TOKEN, description: 'Cookie.httpOnly jwt token', example: SWAGGER_JWT_EXAMPLE })
     @Get('/:id')
     @UseGuards(AccessTokenGuard)
     getById (@UserVerified() user: IUserVerifiedData,
@@ -38,7 +52,10 @@ export class TodoListController {
         return this.todoListService.findOne({ user_id: user.id, id: Number(id) });
     }
 
-
+    @ApiOperation({ summary: 'Изменить список задач по id' })
+    @ApiResponse({ status: 200, type: TodoListSwagger })
+    @ApiResponse({ status: 401, type: ResponseUnauthorizedSwagger })
+    @ApiHeader({ name: COOKIE_ACCESS_TOKEN, description: 'Cookie.httpOnly jwt token', example: SWAGGER_JWT_EXAMPLE })
     @Put('/update/:id')
     @UseGuards(AccessTokenGuard)
     @UsePipes(ClassValidatorPipe)
@@ -48,6 +65,10 @@ export class TodoListController {
         return this.todoListService.update({ user_id: user.id, id: Number(id) }, updateTodoListDto);
     }
 
+    @ApiOperation({ summary: 'Удалить список задач по id' })
+    @ApiResponse({ status: 200, type: TodoListSwagger })
+    @ApiResponse({ status: 401, type: ResponseUnauthorizedSwagger })
+    @ApiHeader({ name: COOKIE_ACCESS_TOKEN, description: 'Cookie.httpOnly jwt token', example: SWAGGER_JWT_EXAMPLE })
     @Delete('/delete/:id')
     @UseGuards(AccessTokenGuard)
     delete (@UserVerified() user: IUserVerifiedData,

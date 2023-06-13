@@ -1,6 +1,7 @@
 import { Column, DataType, HasMany, HasOne, Model, Table } from "sequelize-typescript";
 import { Token } from "../../token/entities/token.entity";
 import { TodoList } from "../../api/todo-list/entities/todo-list.entity";
+import { ApiProperty } from "@nestjs/swagger";
 
 export interface IUserCreationData {
     login: string;

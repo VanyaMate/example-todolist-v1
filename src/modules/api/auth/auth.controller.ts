@@ -6,13 +6,23 @@ import { COOKIE_ACCESS_TOKEN } from "../../../constants/cookies.constant";
 import { Response } from 'express';
 import { getMsDays } from "../../../helpers/utils.helper";
 import { AccessTokenGuard } from "../../../guards/access-token.guard";
+import { ApiCookieAuth, ApiHeader, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+    LogoutSwagger,
+    ResponseUnauthorizedSwagger,
+    SWAGGER_JWT_EXAMPLE,
+    UserSwagger
+} from "../../../configs/swagger.config";
 
+@ApiTags('Аутентификация')
 @Controller('/api/auth')
 export class AuthController {
 
-    constructor(private authService: AuthService) {
-    }
+    constructor(private authService: AuthService) {}
 
+    @ApiOperation({ summary: 'Авторизация по логину и паролю' })
+    @ApiResponse({ status: 200, type: UserSwagger })
+    @ApiResponse({ status: 401, type: ResponseUnauthorizedSwagger })
     @Post('/login')
     @UsePipes(ClassValidatorPipe)
     async login (@Body() createUserDto: CreateUserDto,
@@ -25,6 +35,8 @@ export class AuthController {
         res.status(200).json(user);
     }
 
+    @ApiOperation({ summary: 'Регистрация по логину и паролю' })
+    @ApiResponse({ status: 200, type: UserSwagger })
     @Post('/registration')
     @UsePipes(ClassValidatorPipe)
     async registration (@Body() createUserDto: CreateUserDto,
@@ -37,6 +49,10 @@ export class AuthController {
         res.status(200).json(user);
     }
 
+    @ApiOperation({ summary: 'Выход' })
+    @ApiResponse({ status: 200, type: LogoutSwagger })
+    @ApiResponse({ status: 401, type: ResponseUnauthorizedSwagger })
+    @ApiHeader({ name: COOKIE_ACCESS_TOKEN, description: 'Cookie.httpOnly jwt token', example: SWAGGER_JWT_EXAMPLE })
     @Get('/logout')
     @UseGuards(AccessTokenGuard)
     logout (@Res() res: Response) {
