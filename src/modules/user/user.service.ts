@@ -12,6 +12,10 @@ import { TodoListInclude, TokenInclude } from "../../configs/entities.config";
 @Injectable()
 export class UserService {
 
+    /**
+     * TODO: Изменить на filter
+     */
+
     constructor(@Inject(User.name) private userRepository: typeof User) {}
 
     async create(createUserDto: CreateUserDto) {

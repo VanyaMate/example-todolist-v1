@@ -63,4 +63,13 @@ export class AuthService {
         }
     }
 
+    async refresh (userId: number): Promise<UserPrivate> {
+        try {
+            return this.userService.toPrivate(await this.userService.findOne(userId));
+        }
+        catch (e) {
+            throw new UnauthorizedException(e);
+        }
+    }
+
 }

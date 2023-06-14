@@ -13,6 +13,8 @@ import {
     SWAGGER_JWT_EXAMPLE,
     UserSwagger
 } from "../../../configs/swagger.config";
+import { IUserVerifiedData, UserVerified } from "../../../decorators/user-verified.decorator";
+import { UserPrivate } from "../../user/user.interface";
 
 @ApiTags('Аутентификация')
 @Controller('/api/auth')
@@ -59,5 +61,14 @@ export class AuthController {
         res.clearCookie(COOKIE_ACCESS_TOKEN);
         res.status(200).json({ logout: true })
     }
+
+    @Get('/refresh')
+    @UseGuards(AccessTokenGuard)
+    async refresh (@Res() res: Response,
+           @UserVerified() user: IUserVerifiedData) {
+        const userData: UserPrivate = await this.authService.refresh(user.id)
+        res.status(200).json(userData)
+    }
+
 
 }
