@@ -11,14 +11,17 @@ export class TodoItemSwagger {
     @ApiProperty({ type: String, example: 'Установить зависимость, добавить декораторы', description: 'Описание задачи' })
     description: number;
 
+    @ApiProperty({ type: Date, example: '2023-16-10T23:01:21.142Z', description: 'Дата завершения задачи' })
+    completion_date: string;
+
     @ApiProperty({ type: Boolean, example: true, description: 'Статус задачи' })
     status: boolean;
 
     @ApiProperty({ type: Date, example: '2023-06-10T22:02:14.462Z', description: 'Дата создания задачи' })
-    createdAt: number;
+    createdAt: string;
 
     @ApiProperty({ type: Date, example: '2023-06-11T03:42:02.008Z', description: 'Дата последнего обновления задачи' })
-    updatedAt: number;
+    updatedAt: string;
 
 }
 

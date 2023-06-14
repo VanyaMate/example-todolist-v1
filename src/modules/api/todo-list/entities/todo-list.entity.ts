@@ -1,6 +1,7 @@
 import { Model, Column, DataType, ForeignKey, HasMany, Table } from "sequelize-typescript";
 import { User } from "../../../user/entities/user.entity";
 import { TodoItem } from "../../todo-item/entities/todo-item.entity";
+import { CreateOptions, InstanceDestroyOptions, InstanceRestoreOptions } from "sequelize";
 
 interface TodoListCreate {
     title: string;
@@ -9,7 +10,7 @@ interface TodoListCreate {
 }
 
 @Table({
-    tableName: 'todo_list'
+    tableName: 'todo_list',
 })
 export class TodoList extends Model<TodoList, TodoListCreate> {
 

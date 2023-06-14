@@ -1,4 +1,4 @@
-import { Model, Column, DataType, ForeignKey, Table } from "sequelize-typescript";
+import { Model, Column, DataType, ForeignKey, Table, HasOne } from "sequelize-typescript";
 import { User } from "../../../user/entities/user.entity";
 import { TodoList } from "../../todo-list/entities/todo-list.entity";
 
@@ -10,7 +10,7 @@ interface TodoItemCreate {
 }
 
 @Table({
-    tableName: 'todo_item'
+    tableName: 'todo_item',
 })
 export class TodoItem extends Model<TodoItem, TodoItemCreate> {
 
