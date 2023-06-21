@@ -1,7 +1,7 @@
 export interface ISearchOptions<T> {
     limit?: number;
     offset?: number;
-    order?: [keyof T, 'ask' | 'desk'][]
+    order?: [keyof T, 'asc' | 'desc'][]
 }
 
 export interface IMultiplyResponse<T> {

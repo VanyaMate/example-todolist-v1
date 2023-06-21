@@ -5,6 +5,7 @@ import { UserModule } from "../../user/user.module";
 import { JwtModule } from "@nestjs/jwt";
 import { TokenModule } from "../../token/token.module";
 import { ConfigService } from "@nestjs/config";
+import { TodoItemModule } from "../todo-item/todo-item.module";
 
 @Module({
     controllers: [
@@ -25,6 +26,7 @@ import { ConfigService } from "@nestjs/config";
             }),
             inject: [ConfigService]
         }),
+        TodoItemModule,
     ]
 })
 export class AuthModule {}

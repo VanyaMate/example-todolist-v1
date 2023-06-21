@@ -16,6 +16,9 @@ import { JwtModule } from "@nestjs/jwt";
     imports: [
         TokenModule,
         JwtModule,
+    ],
+    exports: [
+        TodoItemService,
     ]
 })
 export class TodoItemModule {}

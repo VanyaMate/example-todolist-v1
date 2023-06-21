@@ -8,13 +8,10 @@ import { TodoList } from "../api/todo-list/entities/todo-list.entity";
 import { TodoItem } from "../api/todo-item/entities/todo-item.entity";
 import { UserPrivate } from "./user.interface";
 import { TodoListInclude, TokenInclude } from "../../configs/entities.config";
+import { WhereOptions } from "sequelize";
 
 @Injectable()
 export class UserService {
-
-    /**
-     * TODO: Изменить на filter
-     */
 
     constructor(@Inject(User.name) private userRepository: typeof User) {}
 
@@ -28,13 +25,13 @@ export class UserService {
         }
     }
 
-    async findOne(id: number) {
+    async findOne(filter: WhereOptions<User>) {
         try {
             return await this.userRepository.findOne({
-                where: { id },
+                where: filter,
                 include: [
                     TokenInclude,
-                    TodoListInclude,
+                    // TodoListInclude,
                 ]
             });
         }
@@ -43,24 +40,9 @@ export class UserService {
         }
     }
 
-    async findByLogin(login: string) {
+    async update(filter: WhereOptions<User>, updateUserDto: UpdateUserDto) {
         try {
-            return await this.userRepository.findOne({
-                where: { login },
-                include: [
-                    TokenInclude,
-                    TodoListInclude,
-                ]
-            });
-        }
-        catch (e) {
-            throw new HttpException({ message: e.message }, HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    async update(id: number, updateUserDto: UpdateUserDto) {
-        try {
-            const user = await this.userRepository.findOne({ where: { id }});
+            const user = await this.userRepository.findOne({ where: filter });
             return await user.update(updateUserDto);
         }
         catch (e) {
@@ -68,9 +50,9 @@ export class UserService {
         }
     }
 
-    async remove(id: number) {
+    async remove(filter: WhereOptions<User>) {
         try {
-            return await this.userRepository.destroy({ where: { id }});
+            return await this.userRepository.destroy({ where: filter });
         }
         catch (e) {
             throw new HttpException({ message: e.message }, HttpStatus.BAD_REQUEST);

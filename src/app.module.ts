@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import sequelizeConfig from "./configs/sequelize.config";
+import { ConfigModule } from "@nestjs/config";
 import { ModulesModule } from "./modules/modules.module";
-import { JwtModule } from "@nestjs/jwt";
 
 @Module({
     imports: [
