@@ -111,25 +111,23 @@ export class AuthService {
         const currentTime = new Date();
         const startDay = new Date(
             currentTime.getFullYear(),
-            currentTime.getMonth() + 1,
             currentTime.getMonth(),
+            currentTime.getDate(),
             0,
             0,
-            0 ,
             0,
         );
         const finishDay = new Date(
             startDay.getFullYear(),
-            startDay.getMonth() + 1,
+            startDay.getMonth(),
             startDay.getDate(),
             23,
             59,
-            59,
-            999,
+            59
         );
         const upcomingTime = new Date(
             startDay.getFullYear(),
-            startDay.getMonth() + 1,
+            startDay.getMonth(),
             startDay.getDate(),
             currentTime.getHours() + 3,
             currentTime.getMinutes(),
