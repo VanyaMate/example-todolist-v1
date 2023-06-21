@@ -8,6 +8,7 @@ import { UpdateTodoItemDto } from "./dto/update-todo-item.dto";
 import { TodoList } from "../todo-list/entities/todo-list.entity";
 import { IMultiplyResponse, ISearchOptions } from "../api.interface";
 import { WhereOptions } from "sequelize";
+import { Includeable } from "sequelize/types/model";
 
 @Injectable()
 export class TodoItemService {
@@ -35,11 +36,12 @@ export class TodoItemService {
         }
     }
 
-    async findOne (where: WhereOptions<TodoItem>) {
+    async findOne (where: WhereOptions<TodoItem>, include: Includeable[] = []) {
         try {
             return await this.todoItemRepository.findOne({
                 where,
                 attributes: TodoItemAttributes,
+                include,
             })
         }
         catch (e) {
@@ -47,13 +49,14 @@ export class TodoItemService {
         }
     }
 
-    async findMany (where: WhereOptions<TodoItem>, searchOptions: ISearchOptions<TodoItem> = {}): Promise<IMultiplyResponse<TodoItem>> {
+    async findMany (where: WhereOptions<TodoItem>, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = []): Promise<IMultiplyResponse<TodoItem>> {
         try {
             const count: number = await this.todoItemRepository.count({ where });
             const todoItems: TodoItem[] = await this.todoItemRepository.findAll({
                 where,
-                attributes: TodoItemAttributes,
+                include,
                 ...searchOptions,
+                attributes: TodoItemAttributes,
             })
 
             return {
@@ -71,11 +74,12 @@ export class TodoItemService {
         }
     }
 
-    async update (where: WhereOptions<TodoItem>, params: UpdateTodoItemDto) {
+    async update (where: WhereOptions<TodoItem>, params: UpdateTodoItemDto, include: Includeable[] = []) {
         try {
             const todoItem: TodoItem = await this.todoItemRepository.findOne({
                 where,
                 attributes: TodoItemAttributes,
+                include,
             });
 
             if (todoItem) {

@@ -9,11 +9,14 @@ import * as bcrypt from 'bcrypt';
 import { ERROR_RESPONSE_NO_ACCESS } from "../../../constants/response-errors.constant";
 import { UserPrivate } from "../../user/user.interface";
 import { ConfigService } from "@nestjs/config";
-import { AuthData, TodoData } from "./auth.interface";
+import { AuthData, TodoItemsData } from "./auth.interface";
 import { TodoItemService } from "../todo-item/todo-item.service";
 import { IMultiplyResponse } from "../api.interface";
 import { TodoItem } from "../todo-item/entities/todo-item.entity";
 import { Op } from "sequelize";
+import { TodoListService } from "../todo-list/todo-list.service";
+import { TodoList } from "../todo-list/entities/todo-list.entity";
+import { TokenInclude } from "../../../configs/entities.config";
 
 @Injectable()
 export class AuthService {
@@ -22,7 +25,8 @@ export class AuthService {
                  private tokenService: TokenService,
                  private jwtService: JwtService,
                  private configService: ConfigService,
-                 private todoItemService: TodoItemService) {}
+                 private todoItemService: TodoItemService,
+                 private todoListService: TodoListService,) {}
 
     async registration (createUserDto: CreateUserDto): Promise<{ user: AuthData, jwtToken: string }> {
         try {
@@ -35,13 +39,14 @@ export class AuthService {
             return {
                 user: {
                     user: this.userService.toPrivate(user),
-                    todo: {
+                    todo_items: {
                         all: 0,
                         overdue: 0,
                         today: [],
                         upcoming: [],
                         completed: 0,
-                    }
+                    },
+                    todo_lists: []
                 },
                 jwtToken,
             }
@@ -53,7 +58,7 @@ export class AuthService {
 
     async login (createUserDto: CreateUserDto): Promise<{ user: AuthData, jwtToken: string }> {
         try {
-            const user: User = await this.userService.findOne({ login: createUserDto.login });
+            const user: User = await this.userService.findOne({ login: createUserDto.login }, [ TokenInclude ]);
             if (!user) {
                 throw { message: ERROR_RESPONSE_NO_ACCESS };
             }
@@ -68,10 +73,14 @@ export class AuthService {
                 sessionToken: user.token.token,
             });
 
+            const userPrivate: UserPrivate = this.userService.toPrivate(user);
+            const [todoData, todoList]: [TodoItemsData, TodoList[]] = await this._getTodoData(user);
+
             return {
                 user: {
-                    user: this.userService.toPrivate(user),
-                    todo: await this._getTodoData(user),
+                    user: userPrivate,
+                    todo_items: todoData,
+                    todo_lists: todoList,
                 },
                 jwtToken,
             }
@@ -85,11 +94,12 @@ export class AuthService {
         try {
             const user: User = await this.userService.findOne({ id: userId });
             const userPrivate: UserPrivate = this.userService.toPrivate(user);
-            const todoData: TodoData = await this._getTodoData(user);
+            const [todoData, todoList]: [TodoItemsData, TodoList[]] = await this._getTodoData(user);
 
             return {
                 user: userPrivate,
-                todo: todoData,
+                todo_items: todoData,
+                todo_lists: todoList,
             }
         }
         catch (e) {
@@ -97,7 +107,7 @@ export class AuthService {
         }
     }
 
-    private async _getTodoData (user: User): Promise<TodoData> {
+    private async _getTodoData (user: User): Promise<[TodoItemsData, TodoList[]]> {
         const currentTime = new Date();
         const startDay = new Date(
             currentTime.getFullYear(),
@@ -159,13 +169,22 @@ export class AuthService {
             order: [["completion_date", "asc"]]
         })
 
-        return {
-            overdue: overdue.count,
-            all: items.count,
-            completed: completed.count,
-            today: today.list.map((item) => item.completion_date.toISOString()),
-            upcoming: upcoming.list.map((item) => item.completion_date.toISOString()),
-        }
+        const todoLists: IMultiplyResponse<TodoList> = await this.todoListService.findMany({
+            user_id: user.id,
+        }, {
+            limit: 30,
+        })
+
+        return [
+            {
+                overdue: overdue.count,
+                all: items.count,
+                completed: completed.count,
+                today: today.list,
+                upcoming: upcoming.list,
+            },
+            todoLists.list
+        ]
     }
 
 }

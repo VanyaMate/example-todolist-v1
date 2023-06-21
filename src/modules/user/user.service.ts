@@ -9,6 +9,7 @@ import { TodoItem } from "../api/todo-item/entities/todo-item.entity";
 import { UserPrivate } from "./user.interface";
 import { TodoListInclude, TokenInclude } from "../../configs/entities.config";
 import { WhereOptions } from "sequelize";
+import { Includeable } from "sequelize/types/model";
 
 @Injectable()
 export class UserService {
@@ -25,14 +26,11 @@ export class UserService {
         }
     }
 
-    async findOne(filter: WhereOptions<User>) {
+    async findOne(where: WhereOptions<User>, include: Includeable[] = []) {
         try {
             return await this.userRepository.findOne({
-                where: filter,
-                include: [
-                    TokenInclude,
-                    // TodoListInclude,
-                ]
+                where,
+                include: include,
             });
         }
         catch (e) {
@@ -40,9 +38,9 @@ export class UserService {
         }
     }
 
-    async update(filter: WhereOptions<User>, updateUserDto: UpdateUserDto) {
+    async update(where: WhereOptions<User>, updateUserDto: UpdateUserDto, include: Includeable[] = []) {
         try {
-            const user = await this.userRepository.findOne({ where: filter });
+            const user = await this.userRepository.findOne({ where, include });
             return await user.update(updateUserDto);
         }
         catch (e) {
@@ -50,9 +48,9 @@ export class UserService {
         }
     }
 
-    async remove(filter: WhereOptions<User>) {
+    async remove(where: WhereOptions<User>) {
         try {
-            return await this.userRepository.destroy({ where: filter });
+            return await this.userRepository.destroy({ where });
         }
         catch (e) {
             throw new HttpException({ message: e.message }, HttpStatus.BAD_REQUEST);

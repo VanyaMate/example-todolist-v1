@@ -1,9 +1,11 @@
 import { UserPrivate } from "../../user/user.interface";
+import { TodoList } from "../todo-list/entities/todo-list.entity";
+import { TodoItem } from "../todo-item/entities/todo-item.entity";
 
-export type TodoData = {
+export type TodoItemsData = {
     overdue: number,
-    upcoming: string[],
-    today: string[],
+    upcoming: TodoItem[],
+    today: TodoItem[],
 
     all: number,
     completed: number,
@@ -11,5 +13,6 @@ export type TodoData = {
 
 export type AuthData = {
     user: UserPrivate,
-    todo: TodoData
+    todo_items: TodoItemsData,
+    todo_lists: TodoList[],
 }

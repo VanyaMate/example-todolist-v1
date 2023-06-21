@@ -6,6 +6,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { TokenModule } from "../../token/token.module";
 import { ConfigService } from "@nestjs/config";
 import { TodoItemModule } from "../todo-item/todo-item.module";
+import { TodoListModule } from "../todo-list/todo-list.module";
 
 @Module({
     controllers: [
@@ -27,6 +28,7 @@ import { TodoItemModule } from "../todo-item/todo-item.module";
             inject: [ConfigService]
         }),
         TodoItemModule,
+        TodoListModule,
     ]
 })
 export class AuthModule {}
