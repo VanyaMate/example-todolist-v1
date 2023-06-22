@@ -7,7 +7,7 @@ import { TodoItemAttributes, TodoItemInclude, TodoListAttributes } from "../../.
 import { UpdateTodoItemDto } from "./dto/update-todo-item.dto";
 import { TodoList } from "../todo-list/entities/todo-list.entity";
 import { IMultiplyResponse, ISearchOptions } from "../api.interface";
-import { WhereOptions } from "sequelize";
+import { Op, WhereOptions } from "sequelize";
 import { Includeable } from "sequelize/types/model";
 
 @Injectable()
@@ -93,4 +93,77 @@ export class TodoItemService {
         }
     }
 
+    async getOverdue (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = []): Promise<IMultiplyResponse<TodoItem>> {
+        return await this.findMany({
+            user_id: userId,
+            completion_date: {
+                [Op.between]: [new Date(0), new Date()]
+            },
+            status: false
+        }, searchOptions, include)
+    }
+
+    async getCompleted (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = []): Promise<IMultiplyResponse<TodoItem>> {
+        return await this.findMany({
+            user_id: userId,
+            status: true
+        }, searchOptions, include)
+    }
+
+    async getToday (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = []): Promise<IMultiplyResponse<TodoItem>> {
+        const currentTime = new Date();
+        const startDay = new Date(
+            currentTime.getFullYear(),
+            currentTime.getMonth(),
+            currentTime.getDate(),
+            0,
+            0,
+            0,
+        );
+        const finishDay = new Date(
+            startDay.getFullYear(),
+            startDay.getMonth(),
+            startDay.getDate(),
+            23,
+            59,
+            59
+        );
+
+        return await this.findMany({
+            user_id: userId,
+            status: false,
+            completion_date: {
+                [Op.between]: [startDay, finishDay],
+            }
+        }, {
+            limit: 100,
+            order: [["completion_date", "asc"]],
+            ...searchOptions
+        }, include)
+    }
+
+    async getUpcoming (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = []): Promise<IMultiplyResponse<TodoItem>> {
+        const currentTime = new Date();
+        const upcomingTime = new Date(
+            currentTime.getFullYear(),
+            currentTime.getMonth(),
+            currentTime.getDate(),
+            currentTime.getHours() + 3,
+            currentTime.getMinutes(),
+            currentTime.getSeconds(),
+            currentTime.getMilliseconds(),
+        );
+
+        return await this.findMany({
+            user_id: userId,
+            status: false,
+            completion_date: {
+                [Op.between]: [currentTime, upcomingTime],
+            }
+        }, {
+            limit: 100,
+            order: [["completion_date", "asc"]],
+            ...searchOptions
+        }, include)
+    }
 }

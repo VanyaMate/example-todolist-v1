@@ -108,64 +108,11 @@ export class AuthService {
     }
 
     private async _getTodoData (user: User): Promise<[TodoItemsData, TodoList[]]> {
-        const currentTime = new Date();
-        const startDay = new Date(
-            currentTime.getFullYear(),
-            currentTime.getMonth(),
-            currentTime.getDate(),
-            0,
-            0,
-            0,
-        );
-        const finishDay = new Date(
-            startDay.getFullYear(),
-            startDay.getMonth(),
-            startDay.getDate(),
-            23,
-            59,
-            59
-        );
-        const upcomingTime = new Date(
-            startDay.getFullYear(),
-            startDay.getMonth(),
-            startDay.getDate(),
-            currentTime.getHours() + 3,
-            currentTime.getMinutes(),
-            currentTime.getSeconds(),
-            currentTime.getMilliseconds(),
-        );
         const items: IMultiplyResponse<TodoItem> = await this.todoItemService.findMany({ user_id: user.id });
-        const overdue: IMultiplyResponse<TodoItem> = await this.todoItemService.findMany({
-            user_id: user.id,
-            completion_date: {
-                [Op.between]: [new Date(user.createdAt), new Date()]
-            },
-            status: false
-        })
-        const completed: IMultiplyResponse<TodoItem> = await this.todoItemService.findMany({
-            user_id: user.id,
-            status: true
-        })
-        const today: IMultiplyResponse<TodoItem> = await this.todoItemService.findMany({
-            user_id: user.id,
-            status: false,
-            completion_date: {
-                [Op.between]: [startDay, finishDay],
-            }
-        }, {
-            limit: 100,
-            order: [["completion_date", "asc"]]
-        })
-        const upcoming: IMultiplyResponse<TodoItem> = await this.todoItemService.findMany({
-            user_id: user.id,
-            status: false,
-            completion_date: {
-                [Op.between]: [currentTime, upcomingTime],
-            }
-        }, {
-            limit: 100,
-            order: [["completion_date", "asc"]]
-        })
+        const overdue: IMultiplyResponse<TodoItem> = await this.todoItemService.getOverdue(user.id);
+        const completed: IMultiplyResponse<TodoItem> = await this.todoItemService.getCompleted(user.id);
+        const today: IMultiplyResponse<TodoItem> = await this.todoItemService.getToday(user.id);
+        const upcoming: IMultiplyResponse<TodoItem> = await this.todoItemService.getUpcoming(user.id);
 
         const todoLists: IMultiplyResponse<TodoList> = await this.todoListService.findMany({
             user_id: user.id,

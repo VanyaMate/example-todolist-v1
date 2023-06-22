@@ -49,6 +49,38 @@ export class TodoItemController {
         return this.todoItemService.findMany(filters, searchOptions);
     }
 
+    /**
+     * TODO: Добавить swagger
+     */
+    @Get('/overdue')
+    @UseGuards(AccessTokenGuard)
+    getMyOverdue(@UserVerified() user: IUserVerifiedData,
+                 @SearchOptions() searchOptions: ISearchOptions<TodoItem>) {
+        return this.todoItemService.getOverdue(user.id, searchOptions);
+    }
+
+    @Get('/today')
+    @UseGuards(AccessTokenGuard)
+    getMyToday(@UserVerified() user: IUserVerifiedData,
+               @SearchOptions() searchOptions: ISearchOptions<TodoItem>) {
+        return this.todoItemService.getToday(user.id, searchOptions);
+    }
+
+    @Get('/completed')
+    @UseGuards(AccessTokenGuard)
+    getMyCompleted(@UserVerified() user: IUserVerifiedData,
+                   @SearchOptions() searchOptions: ISearchOptions<TodoItem>) {
+        return this.todoItemService.getCompleted(user.id, searchOptions);
+    }
+
+
+    @Get('/upcoming')
+    @UseGuards(AccessTokenGuard)
+    getMyUpcoming(@UserVerified() user: IUserVerifiedData,
+                   @SearchOptions() searchOptions: ISearchOptions<TodoItem>) {
+        return this.todoItemService.getUpcoming(user.id, searchOptions);
+    }
+
     @ApiOperation({ summary: 'Получить задачу авторизованного пользователя по id' })
     @ApiResponse({ status: 200, type: TodoItemSwagger })
     @ApiResponse({ status: 401, type: ResponseUnauthorizedSwagger })
