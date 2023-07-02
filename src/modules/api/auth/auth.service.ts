@@ -2,18 +2,15 @@ import { UserService } from "../../user/user.service";
 import { TokenService } from "../../token/token.service";
 import { CreateUserDto } from "../../user/dto/create-user.dto";
 import { User } from "../../user/entities/user.entity";
-import { Token } from "../../token/entities/token.entity";
 import { JwtService } from "@nestjs/jwt";
 import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import * as bcrypt from 'bcrypt';
 import { ERROR_RESPONSE_NO_ACCESS } from "../../../constants/response-errors.constant";
 import { UserPrivate } from "../../user/user.interface";
 import { ConfigService } from "@nestjs/config";
-import { AuthData, TodoItemsData } from "./auth.interface";
+import { AuthData } from "./auth.interface";
 import { TodoItemService } from "../todo-item/todo-item.service";
 import { IMultiplyResponse } from "../api.interface";
-import { TodoItem } from "../todo-item/entities/todo-item.entity";
-import { Op } from "sequelize";
 import { TodoListService } from "../todo-list/todo-list.service";
 import { TodoList } from "../todo-list/entities/todo-list.entity";
 import { TokenInclude } from "../../../configs/entities.config";
@@ -39,13 +36,6 @@ export class AuthService {
             return {
                 user: {
                     user: this.userService.toPrivate(user),
-                    todo_items: {
-                        all: 0,
-                        overdue: 0,
-                        today: [],
-                        upcoming: [],
-                        completed: 0,
-                    },
                     todo_lists: []
                 },
                 jwtToken,
@@ -74,12 +64,11 @@ export class AuthService {
             });
 
             const userPrivate: UserPrivate = this.userService.toPrivate(user);
-            const [todoData, todoList]: [TodoItemsData, TodoList[]] = await this._getTodoData(user);
+            const todoList: TodoList[] = await this._getTodoData(user);
 
             return {
                 user: {
                     user: userPrivate,
-                    todo_items: todoData,
                     todo_lists: todoList,
                 },
                 jwtToken,
@@ -94,11 +83,10 @@ export class AuthService {
         try {
             const user: User = await this.userService.findOne({ id: userId });
             const userPrivate: UserPrivate = this.userService.toPrivate(user);
-            const [todoData, todoList]: [TodoItemsData, TodoList[]] = await this._getTodoData(user);
+            const todoList: TodoList[] = await this._getTodoData(user);
 
             return {
                 user: userPrivate,
-                todo_items: todoData,
                 todo_lists: todoList,
             }
         }
@@ -107,29 +95,14 @@ export class AuthService {
         }
     }
 
-    private async _getTodoData (user: User): Promise<[TodoItemsData, TodoList[]]> {
-        const items: IMultiplyResponse<TodoItem> = await this.todoItemService.findMany({ user_id: user.id });
-        const overdue: IMultiplyResponse<TodoItem> = await this.todoItemService.getOverdue(user.id);
-        const completed: IMultiplyResponse<TodoItem> = await this.todoItemService.getCompleted(user.id);
-        const today: IMultiplyResponse<TodoItem> = await this.todoItemService.getToday(user.id);
-        const upcoming: IMultiplyResponse<TodoItem> = await this.todoItemService.getUpcoming(user.id);
-
+    private async _getTodoData (user: User): Promise<TodoList[]> {
         const todoLists: IMultiplyResponse<TodoList> = await this.todoListService.findMany({
             user_id: user.id,
         }, {
             limit: 30,
         })
 
-        return [
-            {
-                overdue: overdue.count,
-                all: items.count,
-                completed: completed.count,
-                today: today.list,
-                upcoming: upcoming.list,
-            },
-            todoLists.list
-        ]
+        return todoLists.list;
     }
 
 }

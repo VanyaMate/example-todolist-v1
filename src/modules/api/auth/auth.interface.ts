@@ -13,6 +13,5 @@ export type TodoItemsData = {
 
 export type AuthData = {
     user: UserPrivate,
-    todo_items: TodoItemsData,
     todo_lists: TodoList[],
 }
