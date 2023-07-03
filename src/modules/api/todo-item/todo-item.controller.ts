@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, UsePipes } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards, UsePipes } from "@nestjs/common";
 import { ClassValidatorPipe } from "../../../pipes/class-validator.pipe";
 import { AccessTokenGuard } from "../../../guards/access-token.guard";
 import { IUserVerifiedData, UserVerified } from "../../../decorators/user-verified.decorator";
@@ -102,7 +102,7 @@ export class TodoItemController {
                  @Param('id') id: string,
                  @SearchOptions() searchOptions: ISearchOptions<TodoItem>,
                  @Query('date') date: string) {
-        const filters: WhereOptions<TodoItem> = { user_id: user.id };
+        const filters: WhereOptions<TodoItem> = { user_id: user.id, todo_list_id: id };
         if (date === 'not-null') { filters.completion_date = { [Op.not]: null } }
         return this.todoItemService.findMany(filters, searchOptions);
     }
@@ -111,7 +111,7 @@ export class TodoItemController {
     @ApiResponse({ status: 200, type: TodoItemSwagger })
     @ApiResponse({ status: 401, type: ResponseUnauthorizedSwagger })
     @ApiHeader({ name: COOKIE_ACCESS_TOKEN, description: 'Cookie.httpOnly jwt token', example: SWAGGER_JWT_EXAMPLE })
-    @Put('/update/:id')
+    @Patch('/update/:id')
     @UseGuards(AccessTokenGuard)
     update (@UserVerified() user: IUserVerifiedData,
             @Param('id') id: string,
