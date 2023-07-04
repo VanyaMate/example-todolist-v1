@@ -4,6 +4,7 @@ import { TodoItemService } from "./todo-item.service";
 import todoItemProviders from "./todo-item.providers";
 import { TokenModule } from "../../token/token.module";
 import { JwtModule } from "@nestjs/jwt";
+import { TodoListModule } from "../todo-list/todo-list.module";
 
 @Module({
     controllers: [
@@ -16,6 +17,7 @@ import { JwtModule } from "@nestjs/jwt";
     imports: [
         TokenModule,
         JwtModule,
+        TodoListModule,
     ],
     exports: [
         TodoItemService,

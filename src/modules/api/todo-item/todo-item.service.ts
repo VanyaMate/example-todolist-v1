@@ -9,11 +9,13 @@ import { TodoList } from "../todo-list/entities/todo-list.entity";
 import { IMultiplyResponse, ISearchOptions } from "../api.interface";
 import { Op, WhereOptions } from "sequelize";
 import { Includeable } from "sequelize/types/model";
+import { TodoListService } from "../todo-list/todo-list.service";
 
 @Injectable()
 export class TodoItemService {
 
-    constructor(@Inject(TodoItem.name) private todoItemRepository: typeof TodoItem) {}
+    constructor(@Inject(TodoItem.name) private todoItemRepository: typeof TodoItem,
+                private readonly todoListService: TodoListService) {}
 
     async create (userId: number, createTodoItemDto: CreateTodoItemDto) {
         try {
@@ -83,6 +85,16 @@ export class TodoItemService {
             });
 
             if (todoItem) {
+                if (params.todo_list_id) {
+                    const todoList: TodoList = await this.todoListService.findOne({ id: params.todo_list_id });
+                    if (!todoList) {
+                        return await todoItem.update({
+                            ...params,
+                            todo_list_id: null,
+                        })
+                    }
+                }
+
                 return await todoItem.update(params);
             }
 

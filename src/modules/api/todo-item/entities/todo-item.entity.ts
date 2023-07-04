@@ -33,8 +33,8 @@ export class TodoItem extends Model<TodoItem, TodoItemCreate> {
     @ForeignKey(() => User)
     user_id: number;
 
-    @Column({ type: DataType.INTEGER, allowNull: false })
+    @Column({ type: DataType.INTEGER, allowNull: true, defaultValue: null })
     @ForeignKey(() => TodoList)
-    todo_list_id: number;
+    todo_list_id: number | null;
 
 }
