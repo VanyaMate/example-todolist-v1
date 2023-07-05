@@ -85,7 +85,7 @@ export class TodoItemService {
             });
 
             if (todoItem) {
-                if (params.todo_list_id) {
+                if ((params.todo_list_id ?? null) !== null) {
                     const todoList: TodoList = await this.todoListService.findOne({ id: params.todo_list_id });
                     if (!todoList) {
                         return await todoItem.update({
