@@ -19,6 +19,17 @@ export class TodoItemService {
 
     async create (userId: number, createTodoItemDto: CreateTodoItemDto) {
         try {
+            if ((createTodoItemDto.todo_list_id ?? null) !== null) {
+                const todoList: TodoList = await this.todoListService.findOne({ id: createTodoItemDto.todo_list_id });
+                if (!todoList) {
+                    return await this.todoItemRepository.create({
+                        ...createTodoItemDto,
+                        user_id: userId,
+                        todo_list_id: null,
+                    })
+                }
+            }
+
             return await this.todoItemRepository.create({
                 ...createTodoItemDto,
                 user_id: userId,
