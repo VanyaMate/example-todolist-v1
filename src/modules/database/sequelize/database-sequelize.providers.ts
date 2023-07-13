@@ -13,7 +13,8 @@ export const databaseProviders = [
             // TODO: Fix this fix for render.com
             const sequelize = process.env.NODE_ENV === 'prod'
                 ?   new Sequelize('postgres://vanyamate:d4DGaej1OOkA4jH4dv4ZJ3N6yMZWmtmG@dpg-cio46ctgkuvudi8mar5g-a.frankfurt-postgres.render.com/todolist_ytqw', {
-                    ssl: false
+                    ssl: false,
+                    dialectOptions: {}
                 })
                 :   new Sequelize({
                         dialect: config.get<Dialect>('DB_SEQUELIZE_DIALECT'),
