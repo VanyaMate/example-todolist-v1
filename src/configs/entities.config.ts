@@ -15,7 +15,7 @@ export const TodoItemInclude = {
     limit: 10,
 }
 
-export const TodoListAttributes = ['id', 'title', 'description', 'createdAt', 'updatedAt'];
+export const TodoListAttributes = ['id', 'title', 'description', 'createdAt', 'updatedAt', 'colorHex'];
 export const TodoListInclude = {
     model: TodoList,
     attributes: TodoListAttributes,

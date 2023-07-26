@@ -23,6 +23,9 @@ export class TodoList extends Model<TodoList, TodoListCreate> {
     @Column({ type: DataType.TEXT, allowNull: false })
     description: string;
 
+    @Column({ type: DataType.TEXT, allowNull: false, defaultValue: '#68f8f8' })
+    colorHex: string;
+
     @Column({ type: DataType.INTEGER, allowNull: false })
     @ForeignKey(() => User)
     user_id: number;

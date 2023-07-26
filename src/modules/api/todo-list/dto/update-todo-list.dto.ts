@@ -21,4 +21,9 @@ export class UpdateTodoListDto {
     @ValidateIf((object, value) => value !== undefined && value !== null)
     readonly description: string;
 
+    @Length(7, 7, { message: ERROR_LENGTH })
+    @IsString({ message: ERROR_IS_NOT_STRING })
+    @ValidateIf((object, value) => value !== undefined && value !== null)
+    readonly colorHex: string;
+
 }

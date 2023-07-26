@@ -1,19 +1,20 @@
-import { UserService } from "../../user/user.service";
-import { TokenService } from "../../token/token.service";
-import { CreateUserDto } from "../../user/dto/create-user.dto";
-import { User } from "../../user/entities/user.entity";
-import { JwtService } from "@nestjs/jwt";
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { UserService } from '../../user/user.service';
+import { TokenService } from '../../token/token.service';
+import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { User } from '../../user/entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { ERROR_RESPONSE_NO_ACCESS } from "../../../constants/response-errors.constant";
-import { UserPrivate } from "../../user/user.interface";
-import { ConfigService } from "@nestjs/config";
-import { AuthData } from "./auth.interface";
-import { TodoItemService } from "../todo-item/todo-item.service";
-import { IMultiplyResponse } from "../api.interface";
-import { TodoListService } from "../todo-list/todo-list.service";
-import { TodoList } from "../todo-list/entities/todo-list.entity";
-import { TokenInclude } from "../../../configs/entities.config";
+import { ERROR_RESPONSE_NO_ACCESS } from '../../../constants/response-errors.constant';
+import { UserPrivate } from '../../user/user.interface';
+import { ConfigService } from '@nestjs/config';
+import { AuthData } from './auth.interface';
+import { TodoItemService } from '../todo-item/todo-item.service';
+import { IMultiplyResponse } from '../api.interface';
+import { TodoListService } from '../todo-list/todo-list.service';
+import { TodoList } from '../todo-list/entities/todo-list.entity';
+import { TokenInclude } from '../../../configs/entities.config';
+
 
 @Injectable()
 export class AuthService {
@@ -23,25 +24,28 @@ export class AuthService {
                  private jwtService: JwtService,
                  private configService: ConfigService,
                  private todoItemService: TodoItemService,
-                 private todoListService: TodoListService,) {}
+                 private todoListService: TodoListService) {
+    }
 
-    async registration (createUserDto: CreateUserDto): Promise<{ user: AuthData, jwtToken: string }> {
+    async registration (createUserDto: CreateUserDto): Promise<{
+        user: AuthData,
+        jwtToken: string
+    }> {
         try {
-            const user: User = await this.userService.create(createUserDto);
-            const token: string = await this.tokenService.create(user.id);
+            const user: User       = await this.userService.create(createUserDto);
+            const token: string    = await this.tokenService.create(user.id);
             const jwtToken: string = this.jwtService.sign({
-                id: user.id,
+                id          : user.id,
                 sessionToken: token,
             });
             return {
                 user: {
-                    user: this.userService.toPrivate(user),
-                    todo_lists: []
+                    user      : this.userService.toPrivate(user),
+                    todo_lists: [],
                 },
                 jwtToken,
-            }
-        }
-        catch (e) {
+            };
+        } catch (e) {
             throw new BadRequestException(e);
         }
     }
@@ -59,38 +63,36 @@ export class AuthService {
             }
 
             const jwtToken: string = this.jwtService.sign({
-                id: user.id,
+                id          : user.id,
                 sessionToken: user.token.token,
             });
 
             const userPrivate: UserPrivate = this.userService.toPrivate(user);
-            const todoList: TodoList[] = await this._getTodoData(user);
+            const todoList: TodoList[]     = await this._getTodoData(user);
 
             return {
                 user: {
-                    user: userPrivate,
+                    user      : userPrivate,
                     todo_lists: todoList,
                 },
                 jwtToken,
-            }
-        }
-        catch (e) {
+            };
+        } catch (e) {
             throw new UnauthorizedException(e);
         }
     }
 
     async refresh (userId: number): Promise<AuthData> {
         try {
-            const user: User = await this.userService.findOne({ id: userId });
+            const user: User               = await this.userService.findOne({ id: userId });
             const userPrivate: UserPrivate = this.userService.toPrivate(user);
-            const todoList: TodoList[] = await this._getTodoData(user);
+            const todoList: TodoList[]     = await this._getTodoData(user);
 
             return {
-                user: userPrivate,
+                user      : userPrivate,
                 todo_lists: todoList,
-            }
-        }
-        catch (e) {
+            };
+        } catch (e) {
             throw new UnauthorizedException(e);
         }
     }
@@ -100,7 +102,8 @@ export class AuthService {
             user_id: user.id,
         }, {
             limit: 30,
-        })
+            order: [ [ 'createdAt', 'asc' ] ],
+        });
 
         return todoLists.list;
     }
