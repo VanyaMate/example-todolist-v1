@@ -10,13 +10,13 @@ import { ApiProperty } from "@nestjs/swagger";
 export class UpdateTodoItemDto {
 
     @ApiProperty({ type: String, example: 'Добавить swagger', description: 'Заголовок задачи' })
-    @Length(3, 30, { message: ERROR_LENGTH })
+    @Length(3, 40, { message: ERROR_LENGTH })
     @IsString({ message: ERROR_IS_NOT_STRING })
     @ValidateIf((object, value) => value !== undefined && value !== null)
     readonly title: string;
 
     @ApiProperty({ type: String, example: 'Установить зависимость, добавить декораторы', description: 'Описание задачи' })
-    @Length(0, 100, { message: ERROR_LENGTH })
+    @Length(0, 200, { message: ERROR_LENGTH })
     @IsString({ message: ERROR_IS_NOT_STRING })
     @ValidateIf((object, value) =>  value !== undefined && value !== null)
     readonly description: string;
