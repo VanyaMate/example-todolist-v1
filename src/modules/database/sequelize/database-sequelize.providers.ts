@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize-typescript';
+import { Tag } from '../../api/tags/entities/tag.entity';
 import { User } from '../../user/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { Dialect } from 'sequelize/types/sequelize';
@@ -20,7 +21,7 @@ export const databaseProviders = [
                 database: config.get<string>('DB_SEQUELIZE_DATABASE'),
                 logging : false,
             });
-            sequelize.addModels([ User, Token, TodoItem, TodoList ]);
+            sequelize.addModels([ User, Token, TodoItem, TodoList, Tag ]);
             await sequelize.sync();
             return sequelize;
         },
