@@ -28,15 +28,20 @@ export class TagsService {
         }
     }
 
-    public findOne (where: WhereOptions<Tag>, include: Includeable[] = []): Promise<Tag> {
+    public async findOne (where: WhereOptions<Tag>, include: Includeable[] = []): Promise<Tag> {
         try {
-            return this.tagRepository.findOne({
+            const tag: Tag = await this.tagRepository.findOne({
                 where,
                 include,
                 attributes: TagAttributes,
             });
+            if (tag) {
+                return tag;
+            }
+            throw { message: ERROR_RESPONSE_NO_FIND };
+
         } catch (e) {
-            throw new HttpException({ message: 'Bad request' }, 400);
+            throw new HttpException(e.message, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -69,7 +74,7 @@ export class TagsService {
 
             throw { message: ERROR_RESPONSE_NO_FIND };
         } catch (e) {
-            throw new HttpException(e, HttpStatus.NOT_FOUND);
+            throw new HttpException(e.message, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -77,7 +82,7 @@ export class TagsService {
         try {
             return this.tagRepository.destroy({ where });
         } catch (e) {
-            throw new HttpException(e, HttpStatus.NOT_FOUND);
+            throw new HttpException(e.message, HttpStatus.NOT_FOUND);
         }
     }
 

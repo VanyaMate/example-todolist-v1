@@ -34,7 +34,7 @@ export class TagsController {
         return this.tagsService.findMany({ user_id: user.id, ...searchBy }, searchOptions);
     }
 
-    @Get('/:id')
+    @Get(':id')
     @UseGuards(AccessTokenGuard)
     public getOne (@Param('id') id: string,
                    @UserVerified() user: IUserVerifiedData) {
@@ -48,7 +48,7 @@ export class TagsController {
         return this.tagsService.create(user.id, createDto);
     }
 
-    @Patch('/:id')
+    @Patch(':id')
     @UseGuards(AccessTokenGuard)
     public patch (@Body() updateDto: UpdateTagDto,
                   @UserVerified() user: IUserVerifiedData,
@@ -60,7 +60,7 @@ export class TagsController {
     }
 
 
-    @Delete('/:id')
+    @Delete(':id')
     @UseGuards(AccessTokenGuard)
     public delete (@UserVerified() user: IUserVerifiedData,
                    @Param('id') id: string) {
