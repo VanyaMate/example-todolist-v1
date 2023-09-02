@@ -1,4 +1,5 @@
 import {
+    BelongsToMany,
     Column,
     DataType,
     ForeignKey,
@@ -6,6 +7,8 @@ import {
     Table,
 } from 'sequelize-typescript';
 import { User } from '../../../user/entities/user.entity';
+import { TodoItem } from '../../todo-item/entities/todo-item.entity';
+import { TagToItem } from './tag-to-item.entity';
 
 
 interface TagCreate {
@@ -46,5 +49,8 @@ export class Tag extends Model<Tag, TagCreate> {
     })
     @ForeignKey(() => User)
     user_id: number;
+
+    @BelongsToMany(() => TodoItem, () => TagToItem, 'todo_item_id')
+    todo_items: TodoItem[];
 
 }

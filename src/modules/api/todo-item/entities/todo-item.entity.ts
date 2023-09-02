@@ -1,6 +1,16 @@
-import { Model, Column, DataType, ForeignKey, Table, HasOne } from "sequelize-typescript";
-import { User } from "../../../user/entities/user.entity";
-import { TodoList } from "../../todo-list/entities/todo-list.entity";
+import {
+    Model,
+    Column,
+    DataType,
+    ForeignKey,
+    Table,
+    HasOne, HasMany, BelongsToMany,
+} from 'sequelize-typescript';
+import { User } from '../../../user/entities/user.entity';
+import { TagToItem } from '../../tags/entities/tag-to-item.entity';
+import { Tag } from '../../tags/entities/tag.entity';
+import { TodoList } from '../../todo-list/entities/todo-list.entity';
+
 
 interface TodoItemCreate {
     title: string;
@@ -14,7 +24,12 @@ interface TodoItemCreate {
 })
 export class TodoItem extends Model<TodoItem, TodoItemCreate> {
 
-    @Column({ type: DataType.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true })
+    @Column({
+        type         : DataType.INTEGER,
+        allowNull    : false,
+        autoIncrement: true,
+        primaryKey   : true,
+    })
     id: number;
 
     @Column({ type: DataType.STRING, allowNull: false })
@@ -36,5 +51,8 @@ export class TodoItem extends Model<TodoItem, TodoItemCreate> {
     @Column({ type: DataType.INTEGER, allowNull: true, defaultValue: null })
     @ForeignKey(() => TodoList)
     todo_list_id: number | null;
+
+    @BelongsToMany(() => Tag, () => TagToItem, 'tag_id')
+    tags: Tag[];
 
 }
