@@ -1,11 +1,15 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
 import { Includeable } from 'sequelize/types/model';
-import { TagAttributes } from '../../../configs/entities.config';
+import {
+    TagAttributes,
+    TodoItemAttributes, TodoItemInclude,
+} from '../../../configs/entities.config';
 import {
     ERROR_RESPONSE_NO_FIND,
 } from '../../../constants/response-errors.constant';
 import { IMultiplyResponse, ISearchOptions } from '../api.interface';
+import { TodoItem } from '../todo-item/entities/todo-item.entity';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import { Tag } from './entities/tag.entity';
@@ -49,7 +53,11 @@ export class TagsService {
         try {
             const { rows, count } = await this.tagRepository.findAndCountAll({
                 where,
-                include,
+                include   : include.length ? include : [ {
+                    model     : TodoItem,
+                    attributes: TodoItemAttributes,
+                    through   : { attributes: [] },
+                } ],
                 attributes: TagAttributes,
                 ...searchOptions,
             });
@@ -60,6 +68,7 @@ export class TagsService {
                 options: searchOptions,
             };
         } catch (e) {
+            console.log(e);
             throw new HttpException({ message: 'Bad request' }, 400);
         }
     }

@@ -1,4 +1,5 @@
 import {
+    BelongsTo,
     Column,
     DataType,
     ForeignKey,
@@ -26,11 +27,9 @@ export class TagToItem extends Model<TagToItem, TagToItemCreate> {
     })
     id: number;
 
-    @Column({ type: DataType.INTEGER, allowNull: false })
-    @ForeignKey(() => TodoItem)
-    todo_item_id: number;
+    @BelongsTo(() => TodoItem, 'todo_item_id')
+    todo_item: TodoItem;
 
-    @Column({ type: DataType.INTEGER, allowNull: false })
-    @ForeignKey(() => Tag)
-    tag_id: number;
+    @BelongsTo(() => Tag, 'tag_id')
+    tag: Tag;
 }

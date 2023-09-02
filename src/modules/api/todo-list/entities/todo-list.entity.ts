@@ -1,7 +1,19 @@
-import { Model, Column, DataType, ForeignKey, HasMany, Table } from "sequelize-typescript";
-import { User } from "../../../user/entities/user.entity";
-import { TodoItem } from "../../todo-item/entities/todo-item.entity";
-import { CreateOptions, InstanceDestroyOptions, InstanceRestoreOptions } from "sequelize";
+import {
+    Model,
+    Column,
+    DataType,
+    ForeignKey,
+    HasMany,
+    Table,
+} from 'sequelize-typescript';
+import { User } from '../../../user/entities/user.entity';
+import { TodoItem } from '../../todo-item/entities/todo-item.entity';
+import {
+    CreateOptions,
+    InstanceDestroyOptions,
+    InstanceRestoreOptions,
+} from 'sequelize';
+
 
 interface TodoListCreate {
     title: string;
@@ -14,7 +26,12 @@ interface TodoListCreate {
 })
 export class TodoList extends Model<TodoList, TodoListCreate> {
 
-    @Column({ type: DataType.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true })
+    @Column({
+        type         : DataType.INTEGER,
+        allowNull    : false,
+        autoIncrement: true,
+        primaryKey   : true,
+    })
     id: number;
 
     @Column({ type: DataType.STRING, allowNull: false })
@@ -31,6 +48,6 @@ export class TodoList extends Model<TodoList, TodoListCreate> {
     user_id: number;
 
     @HasMany(() => TodoItem)
-    todo_items: TodoItem[]
+    todo_items: TodoItem[];
 
 }

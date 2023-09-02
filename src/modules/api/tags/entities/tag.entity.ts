@@ -50,7 +50,7 @@ export class Tag extends Model<Tag, TagCreate> {
     @ForeignKey(() => User)
     user_id: number;
 
-    @BelongsToMany(() => TodoItem, () => TagToItem, 'todo_item_id')
+    @BelongsToMany(() => TodoItem, () => TagToItem, 'tag_id', 'todo_item_id')
     todo_items: TodoItem[];
 
 }

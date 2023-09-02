@@ -52,7 +52,7 @@ export class TodoItem extends Model<TodoItem, TodoItemCreate> {
     @ForeignKey(() => TodoList)
     todo_list_id: number | null;
 
-    @BelongsToMany(() => Tag, () => TagToItem, 'tag_id')
+    @BelongsToMany(() => Tag, () => TagToItem, 'todo_item_id', 'tag_id')
     tags: Tag[];
 
 }

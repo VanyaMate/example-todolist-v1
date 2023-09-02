@@ -1,9 +1,15 @@
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
+import { TagToItem } from '../tags/entities/tag-to-item.entity';
 import { TodoItem } from "./entities/todo-item.entity";
 import { CreateTodoItemDto } from "./dto/create-todo-item.dto";
 import { ERROR_RESPONSE_NO_FIND } from "../../../constants/response-errors.constant";
 import { ERROR_NOT_FOUND } from "../../../constants/todo-item.constant";
-import { TodoItemAttributes, TodoItemInclude, TodoListAttributes } from "../../../configs/entities.config";
+import {
+    TagInclude,
+    TodoItemAttributes,
+    TodoItemInclude,
+    TodoListAttributes,
+} from '../../../configs/entities.config';
 import { UpdateTodoItemDto } from "./dto/update-todo-item.dto";
 import { TodoList } from "../todo-list/entities/todo-list.entity";
 import { IMultiplyResponse, ISearchOptions } from "../api.interface";
@@ -15,6 +21,7 @@ import { TodoListService } from "../todo-list/todo-list.service";
 export class TodoItemService {
 
     constructor(@Inject(TodoItem.name) private todoItemRepository: typeof TodoItem,
+                @Inject(TagToItem.name) private tagToItem: typeof TagToItem,
                 private readonly todoListService: TodoListService) {}
 
     async create (userId: number, createTodoItemDto: CreateTodoItemDto) {
@@ -49,7 +56,7 @@ export class TodoItemService {
         }
     }
 
-    async findOne (where: WhereOptions<TodoItem>, include: Includeable[] = []) {
+    async findOne (where: WhereOptions<TodoItem>, include: Includeable[] = [ TagInclude ]) {
         try {
             return await this.todoItemRepository.findOne({
                 where,
@@ -62,7 +69,7 @@ export class TodoItemService {
         }
     }
 
-    async findMany (where: WhereOptions<TodoItem>, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = []): Promise<IMultiplyResponse<TodoItem>> {
+    async findMany (where: WhereOptions<TodoItem>, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = [ TagInclude ]): Promise<IMultiplyResponse<TodoItem>> {
         try {
             const count: number = await this.todoItemRepository.count({ where });
             const todoItems: TodoItem[] = await this.todoItemRepository.findAll({
@@ -87,7 +94,7 @@ export class TodoItemService {
         }
     }
 
-    async update (where: WhereOptions<TodoItem>, params: UpdateTodoItemDto, include: Includeable[] = []) {
+    async update (where: WhereOptions<TodoItem>, params: UpdateTodoItemDto, include: Includeable[] = [ TagInclude ]) {
         try {
             const todoItem: TodoItem = await this.todoItemRepository.findOne({
                 where,
@@ -116,7 +123,7 @@ export class TodoItemService {
         }
     }
 
-    async getOverdue (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = []): Promise<IMultiplyResponse<TodoItem>> {
+    async getOverdue (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = [ TagInclude ]): Promise<IMultiplyResponse<TodoItem>> {
         return await this.findMany({
             user_id: userId,
             completion_date: {
@@ -126,14 +133,14 @@ export class TodoItemService {
         }, searchOptions, include)
     }
 
-    async getCompleted (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = []): Promise<IMultiplyResponse<TodoItem>> {
+    async getCompleted (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = [ TagInclude ]): Promise<IMultiplyResponse<TodoItem>> {
         return await this.findMany({
             user_id: userId,
             status: true
         }, searchOptions, include)
     }
 
-    async getToday (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = []): Promise<IMultiplyResponse<TodoItem>> {
+    async getToday (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = [ TagInclude ]): Promise<IMultiplyResponse<TodoItem>> {
         const currentTime = new Date();
         const startDay = new Date(
             currentTime.getFullYear(),
@@ -165,7 +172,7 @@ export class TodoItemService {
         }, include)
     }
 
-    async getUpcoming (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = []): Promise<IMultiplyResponse<TodoItem>> {
+    async getUpcoming (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = [ TagInclude ]): Promise<IMultiplyResponse<TodoItem>> {
         const currentTime = new Date();
         const upcomingTime = new Date(
             currentTime.getFullYear(),
@@ -188,5 +195,15 @@ export class TodoItemService {
             order: [["completion_date", "asc"]],
             ...searchOptions
         }, include)
+    }
+
+    async addTag (where: WhereOptions<TodoItem>, tagId: number) {
+        const item: TodoItem = await this.todoItemRepository.findOne({ where });
+        if (item) {
+            return this.tagToItem.create({
+                tag_id: tagId,
+                todo_item_id: item.id,
+            })
+        }
     }
 }
