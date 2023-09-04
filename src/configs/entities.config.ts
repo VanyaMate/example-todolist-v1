@@ -16,7 +16,6 @@ export const TokenAttributes = [ 'token' ];
 export const TokenInclude    = {
     model     : Token,
     attributes: TokenAttributes,
-    through   : { attributes: [] },
 };
 
 export const TodoItemAttributes = [ 'id', 'title', 'description', 'status', 'createdAt', 'updatedAt', 'completion_date', 'todo_list_id' ];

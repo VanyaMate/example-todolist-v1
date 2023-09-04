@@ -3,9 +3,15 @@ import { TokenService } from '../../token/token.service';
 import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { User } from '../../user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { ERROR_RESPONSE_NO_ACCESS } from '../../../constants/response-errors.constant';
+import {
+    ERROR_RESPONSE_NO_ACCESS,
+} from '../../../constants/response-errors.constant';
 import { UserPrivate } from '../../user/user.interface';
 import { ConfigService } from '@nestjs/config';
 import { AuthData } from './auth.interface';
@@ -50,18 +56,20 @@ export class AuthService {
         }
     }
 
-    async login (createUserDto: CreateUserDto): Promise<{ user: AuthData, jwtToken: string }> {
+    async login (createUserDto: CreateUserDto): Promise<{
+        user: AuthData,
+        jwtToken: string
+    }> {
         try {
             const user: User = await this.userService.findOne({ login: createUserDto.login }, [ TokenInclude ]);
             if (!user) {
                 throw { message: ERROR_RESPONSE_NO_ACCESS };
             }
-
             const valid: boolean = bcrypt.compareSync(createUserDto.password, user.password);
+
             if (!valid) {
                 throw { message: ERROR_RESPONSE_NO_ACCESS };
             }
-
             const jwtToken: string = this.jwtService.sign({
                 id          : user.id,
                 sessionToken: user.token.token,
