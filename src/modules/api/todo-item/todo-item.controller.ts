@@ -196,13 +196,24 @@ export class TodoItemController {
 
     @Post('/tags/:id')
     @UseGuards(AccessTokenGuard)
-    addTag (@UserVerified() user: IUserVerifiedData,
-            @Param('id') id: string,
-            @Body() { tagId }: { tagId: string }) {
-        return this.todoItemService.addTag({
+    addTags (@UserVerified() user: IUserVerifiedData,
+             @Param('id') id: string,
+             @Body() { tagIds }: { tagIds: string }) {
+        return this.todoItemService.addTags({
             user_id: user.id,
             id     : Number(id),
-        }, Number(tagId));
+        }, (tagIds ? JSON.parse(tagIds) : []).map((tag) => Number(tag)));
+    }
+
+    @Delete('/tags/:id')
+    @UseGuards(AccessTokenGuard)
+    deleteTags (@UserVerified() user: IUserVerifiedData,
+                @Param('id') id: string,
+                @Body() { tagIds }: { tagIds: string }) {
+        return this.todoItemService.removeTags({
+            user_id: user.id,
+            id     : Number(id),
+        }, (tagIds ? JSON.parse(tagIds) : []).map((tag) => Number(tag)));
     }
 
 }

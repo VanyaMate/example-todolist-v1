@@ -1,28 +1,38 @@
-import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
+import {
+    HttpException,
+    HttpStatus,
+    Inject,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { TagToItem } from '../tags/entities/tag-to-item.entity';
-import { TodoItem } from "./entities/todo-item.entity";
-import { CreateTodoItemDto } from "./dto/create-todo-item.dto";
-import { ERROR_RESPONSE_NO_FIND } from "../../../constants/response-errors.constant";
-import { ERROR_NOT_FOUND } from "../../../constants/todo-item.constant";
+import { TodoItem } from './entities/todo-item.entity';
+import { CreateTodoItemDto } from './dto/create-todo-item.dto';
+import {
+    ERROR_RESPONSE_NO_FIND,
+} from '../../../constants/response-errors.constant';
+import { ERROR_NOT_FOUND } from '../../../constants/todo-item.constant';
 import {
     TagInclude,
     TodoItemAttributes,
     TodoItemInclude,
     TodoListAttributes,
 } from '../../../configs/entities.config';
-import { UpdateTodoItemDto } from "./dto/update-todo-item.dto";
-import { TodoList } from "../todo-list/entities/todo-list.entity";
-import { IMultiplyResponse, ISearchOptions } from "../api.interface";
-import { Op, WhereOptions } from "sequelize";
-import { Includeable } from "sequelize/types/model";
-import { TodoListService } from "../todo-list/todo-list.service";
+import { UpdateTodoItemDto } from './dto/update-todo-item.dto';
+import { TodoList } from '../todo-list/entities/todo-list.entity';
+import { IMultiplyResponse, ISearchOptions } from '../api.interface';
+import sequelize, { Op, WhereOptions } from 'sequelize';
+import { Includeable } from 'sequelize/types/model';
+import { TodoListService } from '../todo-list/todo-list.service';
+
 
 @Injectable()
 export class TodoItemService {
 
-    constructor(@Inject(TodoItem.name) private todoItemRepository: typeof TodoItem,
-                @Inject(TagToItem.name) private tagToItem: typeof TagToItem,
-                private readonly todoListService: TodoListService) {}
+    constructor (@Inject(TodoItem.name) private todoItemRepository: typeof TodoItem,
+                 @Inject(TagToItem.name) private tagToItem: typeof TagToItem,
+                 private readonly todoListService: TodoListService) {
+    }
 
     async create (userId: number, createTodoItemDto: CreateTodoItemDto) {
         try {
@@ -31,27 +41,25 @@ export class TodoItemService {
                 if (!todoList) {
                     return await this.todoItemRepository.create({
                         ...createTodoItemDto,
-                        user_id: userId,
+                        user_id     : userId,
                         todo_list_id: null,
-                    })
+                    });
                 }
             }
 
             return await this.todoItemRepository.create({
                 ...createTodoItemDto,
                 user_id: userId,
-            })
-        }
-        catch (e) {
+            });
+        } catch (e) {
             throw new HttpException({ message: ERROR_NOT_FOUND }, HttpStatus.NOT_FOUND);
         }
     }
 
     async delete (where: WhereOptions<TodoItem>) {
         try {
-            return await this.todoItemRepository.destroy({ where })
-        }
-        catch (e) {
+            return await this.todoItemRepository.destroy({ where });
+        } catch (e) {
             throw new HttpException({ message: ERROR_NOT_FOUND }, HttpStatus.NOT_FOUND);
         }
     }
@@ -62,35 +70,33 @@ export class TodoItemService {
                 where,
                 attributes: TodoItemAttributes,
                 include,
-            })
-        }
-        catch (e) {
+            });
+        } catch (e) {
             throw new HttpException({ message: ERROR_NOT_FOUND }, HttpStatus.NOT_FOUND);
         }
     }
 
     async findMany (where: WhereOptions<TodoItem>, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = [ TagInclude ]): Promise<IMultiplyResponse<TodoItem>> {
         try {
-            const count: number = await this.todoItemRepository.count({ where });
+            const count: number         = await this.todoItemRepository.count({ where });
             const todoItems: TodoItem[] = await this.todoItemRepository.findAll({
                 where,
                 include,
                 ...searchOptions,
                 attributes: TodoItemAttributes,
-            })
+            });
 
             return {
-                list: todoItems,
-                count: count,
+                list   : todoItems,
+                count  : count,
                 options: searchOptions,
-            }
-        }
-        catch (_) {
+            };
+        } catch (_) {
             return {
-                list: [],
-                count: 0,
+                list   : [],
+                count  : 0,
                 options: searchOptions,
-            }
+            };
         }
     }
 
@@ -109,7 +115,7 @@ export class TodoItemService {
                         return await todoItem.update({
                             ...params,
                             todo_list_id: null,
-                        })
+                        });
                     }
                 }
 
@@ -117,32 +123,31 @@ export class TodoItemService {
             }
 
             throw { message: ERROR_RESPONSE_NO_FIND };
-        }
-        catch (e) {
+        } catch (e) {
             throw new HttpException(e, HttpStatus.NOT_FOUND);
         }
     }
 
     async getOverdue (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = [ TagInclude ]): Promise<IMultiplyResponse<TodoItem>> {
         return await this.findMany({
-            user_id: userId,
+            user_id        : userId,
             completion_date: {
-                [Op.between]: [new Date(0), new Date()]
+                [Op.between]: [ new Date(0), new Date() ],
             },
-            status: false
-        }, searchOptions, include)
+            status         : false,
+        }, searchOptions, include);
     }
 
     async getCompleted (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = [ TagInclude ]): Promise<IMultiplyResponse<TodoItem>> {
         return await this.findMany({
             user_id: userId,
-            status: true
-        }, searchOptions, include)
+            status : true,
+        }, searchOptions, include);
     }
 
     async getToday (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = [ TagInclude ]): Promise<IMultiplyResponse<TodoItem>> {
         const currentTime = new Date();
-        const startDay = new Date(
+        const startDay    = new Date(
             currentTime.getFullYear(),
             currentTime.getMonth(),
             currentTime.getDate(),
@@ -150,30 +155,30 @@ export class TodoItemService {
             0,
             0,
         );
-        const finishDay = new Date(
+        const finishDay   = new Date(
             startDay.getFullYear(),
             startDay.getMonth(),
             startDay.getDate(),
             23,
             59,
-            59
+            59,
         );
 
         return await this.findMany({
-            user_id: userId,
-            status: false,
+            user_id        : userId,
+            status         : false,
             completion_date: {
-                [Op.between]: [startDay, finishDay],
-            }
+                [Op.between]: [ startDay, finishDay ],
+            },
         }, {
             limit: 100,
-            order: [["completion_date", "asc"]],
-            ...searchOptions
-        }, include)
+            order: [ [ 'completion_date', 'asc' ] ],
+            ...searchOptions,
+        }, include);
     }
 
     async getUpcoming (userId: number, searchOptions: ISearchOptions<TodoItem> = {}, include: Includeable[] = [ TagInclude ]): Promise<IMultiplyResponse<TodoItem>> {
-        const currentTime = new Date();
+        const currentTime  = new Date();
         const upcomingTime = new Date(
             currentTime.getFullYear(),
             currentTime.getMonth(),
@@ -185,25 +190,51 @@ export class TodoItemService {
         );
 
         return await this.findMany({
-            user_id: userId,
-            status: false,
+            user_id        : userId,
+            status         : false,
             completion_date: {
-                [Op.between]: [currentTime, upcomingTime],
-            }
+                [Op.between]: [ currentTime, upcomingTime ],
+            },
         }, {
             limit: 100,
-            order: [["completion_date", "asc"]],
-            ...searchOptions
-        }, include)
+            order: [ [ 'completion_date', 'asc' ] ],
+            ...searchOptions,
+        }, include);
     }
 
-    async addTag (where: WhereOptions<TodoItem>, tagId: number) {
+    async addTags (where: WhereOptions<TodoItem>, tagIds: number[]) {
         const item: TodoItem = await this.todoItemRepository.findOne({ where });
         if (item) {
-            return this.tagToItem.create({
-                tag_id: tagId,
-                todo_item_id: item.id,
-            })
+            try {
+                return await Promise.all(tagIds.map((tagId: number) => {
+                    return this.tagToItem.create({
+                        tag_id      : tagId,
+                        todo_item_id: item.id,
+                    });
+                }));
+            } catch (e) {
+                throw new HttpException('Cant add this tags', HttpStatus.BAD_REQUEST);
+            }
         }
+
+        throw new NotFoundException('Task not found');
+    }
+
+    async removeTags (where: WhereOptions<TodoItem>, tagIds: number[]) {
+        const item: TodoItem = await this.todoItemRepository.findOne({ where });
+
+        if (item) {
+            return await Promise.all(tagIds.map((tagId: number) => {
+                return this.tagToItem.destroy({
+                    where: sequelize.and({
+                        tag_id: tagId,
+                    }, {
+                        todo_item_id: item.id,
+                    }),
+                });
+            }));
+        }
+
+        throw new NotFoundException('Task not found');
     }
 }
